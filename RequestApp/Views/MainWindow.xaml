@@ -1,0 +1,71 @@
+<Window x:Class="RequestApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:RequestApp" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" Title="ITC Data Request Tracker"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="ThreeDBorderWindow"
+        d:Height="600" d:Width="1000" Height="800" Width="1050">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <DockPanel  >
+            <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30"/>
+            <Button HorizontalAlignment ="Right" Content="Add" Command="{Binding AddCommand}" Margin="20,5,15,5" Padding="10,5"/>
+
+        </DockPanel>
+
+        <DockPanel Grid.Column="1">
+            <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="10,5,15,5" Padding="10,5" DockPanel.Dock="Left"/>
+            <Popup IsOpen="{Binding ShowSortPopup}" PlacementTarget="{Binding ElementName=SortButton}">
+                <StackPanel Background="White" Margin="5">
+                    <TextBlock Text="Sort By:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" Margin="2,2,2,5"/>
+                    <Button Content="Apply Sort" Command="{Binding ApplySortCommand}" Margin="2,2,2,5"/>
+                </StackPanel>
+            </Popup>
+                  
+            
+            <Button x:Name="FilterButton" DockPanel.Dock="Right" Content="Filter By" Command="{Binding ShowFilterCommand}" Margin="10,5,15,5" Padding="10,5"/>
+            <Button Content="Clear" Command="{Binding ClearFilterCommand}" DockPanel.Dock="Right" Margin="10,5,15,5" Visibility="{Binding IsFiltered, Converter={StaticResource BoolToVis}}"/>
+            <Popup IsOpen="{Binding ShowFilterPopup}" PlacementTarget="{Binding ElementName=FilterButton}">
+                <StackPanel Background="White" Margin="5">
+                    <TextBlock Text="Filter By:" FontWeight="Bold" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding Names}" SelectedItem="{Binding SelectedName}" DisplayMemberPath="ReversedFullName" Margin="2,2,2,5"/>
+                    
+                    <Button Content="Apply Filter" Command="{Binding ApplyFilterCommand}" Margin="2,2,2,5"/>
+                    
+                </StackPanel>
+            </Popup>
+        </DockPanel>
+
+        <StackPanel Height="600" Grid.Row="1" Grid.ColumnSpan="2">
+            
+            <ListBox ItemsSource="{Binding DisplayedRequests}" Height="600" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <local:RequestItemView></local:RequestItemView>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <DockPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="5" >
+            <TextBlock Text="ITC Project 2026"  HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="18"/>
+            <TextBlock Text="{Binding RequestCount, StringFormat='Total Requests: {0}'}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="18"/>
+        </DockPanel>
+    </Grid>
+</Window>

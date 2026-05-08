@@ -1,0 +1,101 @@
+[
+  {
+    "Status": "Active",
+    "Requester": {
+      "LastName": "Jabbi Jaiteh",
+      "FirstName": "Fatou",
+      "Email": "fatou.jabbi_jaiteh@kcl.ac.uk",
+      "Affiliation": "Kings College London",
+      "CountryTeamMember": "4CV",
+      "WebsiteMember": "No",
+      "DataUser": true
+    },
+    "LatestSigning": "2024-02-03",
+    "DataSets": [
+      {
+        "Name": "4CV1"
+      },
+      {
+        "Name": "4CV2"
+      }
+    ],
+    "ExpiryDate": "2024-12-31",
+    "AuthorizedBy": "Mary Thompson",
+    "Notes": "Sara Hitchman's student, received data from her",
+    "InternalExternal": "Internal"
+  },
+  {
+    "Status": "Reminded",
+    "Requester": {
+      "LastName": "Abudullah",
+      "FirstName": "Abu",
+      "Email": "abu.s.abdullah@gmail.com",
+      "Affiliation": "Department of Medicine, Boston Medical Center",
+      "CountryTeamMember": "BD",
+      "WebsiteMember": "Yes",
+      "DataUser": true
+    },
+    "LatestSigning": "2024-02-03",
+    "DataSets": [
+      {
+        "Name": "6E1"
+      },
+      {
+        "Name": "6E2"
+      }
+    ],
+    "ExpiryDate": "2024-12-31",
+    "AuthorizedBy": "Mary Thompson",
+    "Notes": "Pete doing the data analysis",
+    "InternalExternal": "Internal"
+  },
+  {
+    "Status": "Finished",
+    "Requester": {
+      "LastName": "Boado",
+      "FirstName": "Marcelo",
+      "Email": "mrbmsoc2001@yahoo.com.ar",
+      "Affiliation": "Universidad de la Rep\u00fablica (UdR)",
+      "CountryTeamMember": "UY (Co-PI)",
+      "WebsiteMember": "Yes",
+      "DataUser": true
+    },
+    "LatestSigning": "2024-02-03",
+    "DataSets": [
+      {
+        "Name": "KRA1"
+      },
+      {
+        "Name": "KRA2"
+      }
+    ],
+    "ExpiryDate": "2024-12-31",
+    "AuthorizedBy": "Mary Thompson",
+    "InternalExternal": "Internal"
+  },
+  {
+    "Status": "Active",
+    "Requester": {
+      "LastName": "Leonardi-Bee",
+      "FirstName": "Jo",
+      "Email": "jo.leonardi-bee@nottingham.ac.uk",
+      "Affiliation": "U Nott",
+      "CountryTeamMember": null,
+      "WebsiteMember": "Yes",
+      "DataUser": true
+    },
+    "LatestSigning": "2024-02-03",
+    "DataSets": [
+      {
+        "Name": "NZL3"
+      },
+      {
+        "Name": "NZL5"
+      }
+    ],
+    "ExpiryDate": "2024-12-31",
+    "AuthorizedBy": "Mary Thompson",
+    "Notes": "Notes go here",
+    "InternalExternal": "Internal"
+  }
+]
