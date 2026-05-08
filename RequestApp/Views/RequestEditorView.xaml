@@ -64,7 +64,7 @@
             <TextBlock Text="Data Sets" FontWeight="Bold" HorizontalAlignment="Center"/>
 
         </StackPanel>
-        <ListBox  Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding DataSets}" Margin="3" Height="Auto" MinHeight="200" VerticalAlignment="Top">
+        <ListBox  x:Name="DataSetsListBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding DataSets}" Margin="3" Height="Auto" MinHeight="200" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

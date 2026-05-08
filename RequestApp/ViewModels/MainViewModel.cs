@@ -50,20 +50,22 @@ namespace RequestApp.ViewModels
             _dialogService = dialogService;
         }
 
-
         public async Task LoadAsync()
         {
-#if DEBUG
-            //var json = await File.ReadAllTextAsync("requests.json");
-            //var requests = JsonSerializer.Deserialize<List<Request>>(json)
-            //               ?? new List<Request>();
+            List<Request> requests;
+            if (true)
+            {
+                requests = await _requestService.GetRequests();
+            }
+            else
+            {
+                var json = await File.ReadAllTextAsync("requests.json");
+                requests = JsonSerializer.Deserialize<List<Request>>(json)
+                                ?? new List<Request>();
+            }
 
-            var requests = await _requestService.GetRequests();
-
-#else
-            HttpClient _httpClient = new HttpClient();
-            var requests = await _httpClient.GetFromJsonAsync<List<Request>>("requests.json");
-#endif
+            // create view models for each request and subscribe to their delete events
+            Requests.Clear();
             foreach (var request in requests)
             {
                 var vm = new RequestItemViewModel(request, _requestService, _dialogService);
@@ -95,10 +97,7 @@ namespace RequestApp.ViewModels
 
             item.DeleteRequested -= Item_DeleteRequested;
 
-
             Requests.Remove(item);
-
-
         }
 
         [RelayCommand]
@@ -113,9 +112,6 @@ namespace RequestApp.ViewModels
             await newRequestVM.Load();
             newRequestVM.SaveRequested += NewItem_SaveRequested;
             var result = _dialogService.ShowDialog(newRequestVM);
-
-
-
         }
 
         private async void NewItem_SaveRequested(object sender, EventArgs e)
@@ -135,15 +131,12 @@ namespace RequestApp.ViewModels
             else
             {
                 _dialogService.ShowMessage("Error", "Failed to save the request.");
-                //Requests.Remove(createVM);
             }
-
         }
 
         [RelayCommand]
         private void ShowFilter()
         {
-            
             ShowFilterPopup = true;
         }
 

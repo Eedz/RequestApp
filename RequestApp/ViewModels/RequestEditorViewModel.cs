@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using ITCLib;
 using MvvmLib.ViewModels;
 using RequestApp.Models;
@@ -16,7 +15,10 @@ namespace RequestApp.ViewModels
     public partial class RequestEditorViewModel : WorkspaceViewModel 
     {
         private readonly IDataRequestService _requestService;
+        private readonly Request _original;
         private readonly Request _model;
+
+        public Request Model => _model;
 
         public List<Requester> RequesterNames { get; set; } = new List<Requester>();
         public List<string> AvailableProjects { get; set; } = new List<string>();
@@ -33,8 +35,19 @@ namespace RequestApp.ViewModels
         public RequestEditorViewModel(Request model, IDataRequestService requestService)
         {
             _requestService = requestService;
-            
-            _model = model;
+            _original = model;
+            _model = new Request()
+            {
+                ID = model.ID,
+                Status = model.Status,
+                Requester = model.Requester,    
+                LatestSigning = model.LatestSigning,
+                ExpiryDate = model.ExpiryDate,
+                AuthorizedBy = model.AuthorizedBy,
+                InternalExternal = model.InternalExternal,
+                Notes = model.Notes,
+                DataSets = new ObservableCollection<ITCDataSet>(model.DataSets)
+            };
         }
 
         public async Task LoadAsync()
@@ -138,7 +151,7 @@ namespace RequestApp.ViewModels
             }
         }
 
-        public ObservableCollection<ITCDataSet> DataSets => new ObservableCollection<ITCDataSet>(_model.DataSets);
+        public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
 
         partial void OnSelectedProjectChanged(string oldValue, string newValue)
         {
@@ -153,14 +166,21 @@ namespace RequestApp.ViewModels
 
         [RelayCommand]
         public void Save()
-        {
-            // Implement save logic, e.g., send updated request to server or update local collection
-            if (_model.ID == 0)
-                _requestService.CreateRequest(_model);
-            else
-                _requestService.UpdateRequest(_model);
-
+        {           
+            _requestService.UpdateRequest(_model);
             OnRequestClose(true);
+        }
+
+        [RelayCommand]
+        private void AddDataSet(ITCDataSet dataset)
+        {
+            DataSets.Add(dataset);
+        }
+
+        [RelayCommand]
+        private void RemoveDataSet(ITCDataSet dataset)
+        {
+            DataSets.Remove(dataset);
         }
 
         [RelayCommand]

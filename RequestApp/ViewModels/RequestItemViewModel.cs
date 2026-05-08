@@ -20,9 +20,21 @@ namespace RequestApp.ViewModels
         private readonly IDataRequestService _requestService;
         private readonly IDialogService _dialogService;
 
-        private readonly Request _model;
+        private Request _model;
 
-        public Request Model => _model;
+        public Request Model { get => _model; private set { 
+                _model = value; 
+                OnPropertyChanged(nameof(Model));
+                OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(Requester));
+                OnPropertyChanged(nameof(LatestSigning));
+                OnPropertyChanged(nameof(ExpiryDate));
+                OnPropertyChanged(nameof(AuthorizedBy));
+                OnPropertyChanged(nameof(InternalExternal));
+                OnPropertyChanged(nameof(Notes));
+                OnPropertyChanged(nameof(DataSets));
+                OnPropertyChanged(nameof(DataSetCount));
+            } }
         public RequestEditorViewModel EditorViewModel { get; set; }
         [ObservableProperty]
         private bool isEditing = false;
@@ -37,7 +49,7 @@ namespace RequestApp.ViewModels
         public string AuthorizedBy => _model.AuthorizedBy;
         public string InternalExternal => _model.InternalExternal;
         public string Notes => _model.Notes;
-        public ObservableCollection<ITCDataSet> DataSets => new ObservableCollection<ITCDataSet>(_model.DataSets);
+        public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
         public int DataSetCount => _model.DataSets.Count;   
 
         #endregion 
@@ -83,7 +95,12 @@ namespace RequestApp.ViewModels
             
             EditorViewModel = new RequestEditorViewModel(_model, _requestService);
             await EditorViewModel.LoadAsync();
-            EditorViewModel.RequestClose += (s, e) => IsEditing = false;
+            EditorViewModel.RequestClose += (s, e) => { 
+                IsEditing = false;
+                if (e.DialogResult == true)
+                    Model = EditorViewModel.Model; // Update the model with any changes from the editor
+                
+            };
             OnPropertyChanged(nameof(EditorViewModel));
 
             
