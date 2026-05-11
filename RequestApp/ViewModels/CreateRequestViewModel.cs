@@ -16,28 +16,6 @@ namespace RequestApp.ViewModels
 
         private readonly Request _request;
 
-        public ObservableCollection<Requester> Requesters { get; set; } = new ObservableCollection<Requester>();
-        public ObservableCollection<ITCDataSet> AvailableDataSets { get; set; } = new ObservableCollection<ITCDataSet>();
-
-        public Request GetRequest() => _request;
-
-        [ObservableProperty]
-        private bool dropDownNames = false;
-
-        public event EventHandler SaveRequested;
-        public CreateRequestViewModel(Request request, IDataRequestService dataRequestService) 
-        {
-            _request = request;
-            _requestService = dataRequestService;
-        }
-
-        public async Task Load()
-        {
-            Requesters = new ObservableCollection<Requester>(await _requestService.GetRequesters());
-            AvailableDataSets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
-
-        }
-
         public string Status
         {
             get => _request.Status;
@@ -59,6 +37,19 @@ namespace RequestApp.ViewModels
                 if (_request.Notes != value)
                 {
                     _request.Notes = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public List<string> DataFormat
+        {
+            get => _request.DataFormat;
+            set
+            {
+                if (!_request.DataFormat.SequenceEqual(value))
+                {
+                    _request.DataFormat = value;
                     OnPropertyChanged();
                 }
             }
@@ -127,6 +118,95 @@ namespace RequestApp.ViewModels
                     _request.DataSets = value;
                     OnPropertyChanged();
                 }
+            }
+        }
+
+        public ObservableCollection<Requester> Requesters { get; set; } = new ObservableCollection<Requester>();
+        public ObservableCollection<ITCDataSet> AvailableDataSets { get; set; } = new ObservableCollection<ITCDataSet>();
+        
+
+        public Request GetRequest() => _request;
+
+        [ObservableProperty]
+        private bool dropDownNames = false;
+
+        [ObservableProperty]
+        private bool dataFormatSAS;
+        [ObservableProperty]
+        private bool dataFormatSPSS;
+        [ObservableProperty]
+        private bool dataFormatSTATA;
+        [ObservableProperty]
+        private bool dataFormatOther;
+        public string DataFormatOtherDescription { get; set; }
+
+        public event EventHandler SaveRequested;
+        public CreateRequestViewModel(Request request, IDataRequestService dataRequestService) 
+        {
+            _request = request;
+            _requestService = dataRequestService;
+        }
+
+        public async Task Load()
+        {
+            Requesters = new ObservableCollection<Requester>(await _requestService.GetRequesters());
+            AvailableDataSets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
+
+        }
+
+        partial void OnDataFormatSASChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_request.DataFormat.Contains("SAS"))
+                    _request.DataFormat.Add("SAS");
+            }
+            else
+            {
+                if (_request.DataFormat.Contains("SAS"))
+                    _request.DataFormat.Remove("SAS");
+            }
+        }
+
+        partial void OnDataFormatSPSSChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_request.DataFormat.Contains("SPSS"))
+                    _request.DataFormat.Add("SPSS");
+            }
+            else
+            {
+                if (_request.DataFormat.Contains("SPSS"))
+                    _request.DataFormat.Remove("SPSS");
+            }
+        }
+
+        partial void OnDataFormatSTATAChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_request.DataFormat.Contains("STATA"))
+                    _request.DataFormat.Add("STATA");
+            }
+            else
+            {
+                if (_request.DataFormat.Contains("STATA"))
+                    _request.DataFormat.Remove("STATA");
+            }
+        }
+
+        partial void OnDataFormatOtherChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_request.DataFormat.Any(x=>x != "SAS" && x != "SPSS" && x != "STATA"))
+                    _request.DataFormat.Add(DataFormatOtherDescription);
+            }
+            else
+            {
+                if (_request.DataFormat.Any(x => x != "SAS" && x != "SPSS" && x != "STATA"))
+                    _request.DataFormat.RemoveAll(x => x != "SAS" && x != "SPSS" && x != "STATA");
             }
         }
 
