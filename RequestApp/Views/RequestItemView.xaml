@@ -38,8 +38,12 @@
                 <StackPanel Margin="0" Width="175">
                     <TextBlock d:Text="Latest Signing" Text="{Binding LatestSigning, StringFormat='Latest Signing: {0:d}'}" FontWeight="Bold" FontSize="14"/>
                     
+                    <TextBlock d:Text="Expiry date" Text="{Binding ExpiryDate, StringFormat='Expires: {0:d}'}"/>
+                    <TextBlock d:Text="Authorized by Mary T" Text="{Binding AuthorizedBy, StringFormat='Authorized by {0}'}"/>
+                    <TextBlock d:Text="Internal/external" Text="{Binding InternalExternal}"/>
+                    <TextBlock d:Text="Data Format(s):" Text="{Binding DataFormat, StringFormat='Data Format(s): {0}'}"/>
                 </StackPanel>
-                <StackPanel  Margin="0" Width="125">
+                <StackPanel  Margin="0" Width="325">
                     <TextBlock HorizontalAlignment="Center">
                         <Run Text="Data Sets" FontWeight="Bold" />
                         <Run Text="{Binding DataSetCount, StringFormat=' ({0})', Mode=OneWay}" FontWeight="Bold" />
@@ -61,11 +65,7 @@
                         </ItemsControl>
                     </ScrollViewer>
                 </StackPanel>
-                <StackPanel Width="200" Margin="0">
-                    <TextBlock d:Text="Expiry date" Text="{Binding ExpiryDate, StringFormat='Expires: {0:d}'}"/>
-                    <TextBlock d:Text="Authorized by Mary T" Text="{Binding AuthorizedBy, StringFormat='Authorization: {0}'}"/>
-                    <TextBlock d:Text="Internal/external" Text="{Binding InternalExternal}"/>
-                </StackPanel>
+                
                 <StackPanel Width="200" Margin="0">
                     <TextBlock d:Text="Notes" Text="{Binding Notes, StringFormat='Notes: {0}'}" TextWrapping="Wrap"/>
                 </StackPanel>
