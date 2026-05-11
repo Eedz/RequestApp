@@ -1,17 +1,19 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MvvmLib;
 using MvvmLib.ViewModels;
 using RequestApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MvvmLib;
-using CommunityToolkit.Mvvm.ComponentModel;
 namespace RequestApp.ViewModels
 {
     public partial class MainViewModel : ViewModelBase
@@ -27,12 +29,15 @@ namespace RequestApp.ViewModels
         private ObservableCollection<RequestItemViewModel> displayedRequests;
 
         public ObservableCollection<Requester> Names { get; set; } = new ObservableCollection<Requester>();
+        public ObservableCollection<ITCDataSet> Datasets { get; set; } = new ObservableCollection<ITCDataSet>();
 
         [ObservableProperty]
         private bool showFilterPopup;
 
         [ObservableProperty]
         private Requester selectedName;
+        [ObservableProperty]
+        private ITCDataSet selectedDataSet;
 
         public bool IsFiltered => DisplayedRequests.Count != Requests.Count;
 
@@ -87,7 +92,21 @@ namespace RequestApp.ViewModels
                             .ToList()
             );
             
+            Datasets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
+            
             DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests);
+        }
+
+        partial void OnSelectedDataSetChanged(ITCDataSet oldValue, ITCDataSet newValue)
+        {
+            if (SelectedDataSet != null) 
+                SelectedName = null;
+        }
+
+        partial void OnSelectedNameChanged(Requester oldValue, Requester newValue)
+        {
+            if (SelectedName != null)
+                SelectedDataSet = null;
         }
 
         private void Item_DeleteRequested(object sender, System.EventArgs e)
@@ -143,13 +162,22 @@ namespace RequestApp.ViewModels
         [RelayCommand]
         private void ApplyFilter()
         {
-            if (SelectedName == null)
+            if (SelectedName != null)
             {
-                DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests);
-                return;
-            }
             DisplayedRequests.Clear();
             DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests.Where(r => r.Requester?.ID == SelectedName.ID));
+                return;
+            }else if (SelectedDataSet != null)
+            {
+                DisplayedRequests.Clear();
+                DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests.Where(r => r.DataSets.Any(x => x.Name == SelectedDataSet.Name)));
+                return;
+            }else
+            {
+                DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests);
+            }
+            
+            
             OnPropertyChanged(nameof(IsFiltered));
             ShowFilterPopup = false;
         }
@@ -159,6 +187,7 @@ namespace RequestApp.ViewModels
         {
             ShowFilterPopup = false;
             SelectedName = null;
+            SelectedDataSet = null;
             ApplyFilter();
         }
 
