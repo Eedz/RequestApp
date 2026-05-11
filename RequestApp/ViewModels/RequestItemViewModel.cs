@@ -49,6 +49,7 @@ namespace RequestApp.ViewModels
         public string AuthorizedBy => _model.AuthorizedBy;
         public string InternalExternal => _model.InternalExternal;
         public string Notes => _model.Notes;
+        public string DataFormat => string.Join(", ", _model.DataFormat);
         public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
         public int DataSetCount => _model.DataSets.Count;   
 
