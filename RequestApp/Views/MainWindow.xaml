@@ -24,12 +24,14 @@
 
         <DockPanel  >
             <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30"/>
-            <Button HorizontalAlignment ="Right" Content="Add" Command="{Binding AddCommand}" Margin="20,5,15,5" Padding="10,5"/>
-
         </DockPanel>
 
-        <DockPanel Grid.Column="1">
-            <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="10,5,15,5" Padding="10,5" DockPanel.Dock="Left"/>
+        
+        <DockPanel Grid.Column="1" Grid.Row="0">
+            <Button Content="Send Email" Margin="0,5,5,5" Command="{Binding ViewEmailTemplatesCommand}"/>
+            <Button Content="Add" Command="{Binding AddCommand}" Margin="5,5,5,5" Padding="10,5"/>
+
+            <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="5,5,5,5" Padding="10,5" DockPanel.Dock="Left"/>
             <Popup IsOpen="{Binding ShowSortPopup}" PlacementTarget="{Binding ElementName=SortButton}">
                 <StackPanel Background="White" Margin="5">
                     <TextBlock Text="Sort By:" FontWeight="Bold" Margin="0,0,0,5"/>
@@ -40,15 +42,36 @@
                   
             
             <Button x:Name="FilterButton" DockPanel.Dock="Right" Content="Filter By" Command="{Binding ShowFilterCommand}" Margin="10,5,15,5" Padding="10,5"/>
-            <Button Content="Clear" Command="{Binding ClearFilterCommand}" DockPanel.Dock="Right" Margin="10,5,15,5" Visibility="{Binding IsFiltered, Converter={StaticResource BoolToVis}}"/>
-            <Popup IsOpen="{Binding ShowFilterPopup}" PlacementTarget="{Binding ElementName=FilterButton}">
-                <StackPanel Background="White" Margin="5">
-                    <TextBlock Text="Filter By:" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <ComboBox ItemsSource="{Binding Names}" SelectedItem="{Binding SelectedName}" DisplayMemberPath="ReversedFullName" Margin="2,2,2,5"/>
-                    
-                    <Button Content="Apply Filter" Command="{Binding ApplyFilterCommand}" Margin="2,2,2,5"/>
-                    
-                </StackPanel>
+            <Button Content="Clear" Command="{Binding ClearFilterCommand}" DockPanel.Dock="Right" Margin="10,5,0,5" Visibility="{Binding IsFiltered, Converter={StaticResource BoolToVis}}"/>
+            <Popup  IsOpen="{Binding ShowFilterPopup}" PlacementTarget="{Binding ElementName=FilterButton}">
+                <Border Background="White" BorderBrush="Gray" BorderThickness="2">
+                    <Grid  Margin="2" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Filter By:" FontWeight="Bold" Margin="0,0,0,5" Grid.Row="0"/>
+
+                        <TextBlock Text="Requester: " Grid.Row="1"/>
+                        <ComboBox ItemsSource="{Binding Names}" SelectedItem="{Binding SelectedName}" DisplayMemberPath="ReversedFullName" Margin="2,2,2,5" Width="75" Grid.Column="1" Grid.Row="1"/>
+
+                        <TextBlock Text="---- OR ----" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+                        <TextBlock Text="Data Set: " Grid.Row="3"/>
+                        <ComboBox ItemsSource="{Binding Datasets}" SelectedItem="{Binding SelectedDataSet}" DisplayMemberPath="Name" Margin="2,2,2,5" Width="75" Grid.Column="1" Grid.Row="3"/>
+
+                        <Button Content="Apply Filter" Command="{Binding ApplyFilterCommand}" Margin="2,2,2,5" Grid.Column="1" Grid.Row="4"/>
+                    </Grid>
+
+                </Border>
             </Popup>
         </DockPanel>
 
