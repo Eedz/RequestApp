@@ -202,6 +202,7 @@ namespace RequestApp
             );
 
             await PopulateDataSets(result.ToList());
+            await PopulateDataFormats(result.ToList());
 
             return result.ToList();
         }
@@ -230,6 +231,31 @@ namespace RequestApp
                         ID = dataSetId,
                         Name = dataSetName
                     });
+                }
+            }
+        }
+
+        public async Task PopulateDataFormats(List<Request> requests)
+        {
+            using var connection = CreateConnection();
+            var sql = @"SELECT ID, RequestID, DataFormat FROM DataRequests.RequestDataFormats;";
+
+            var result = await connection.QueryAsync(sql);
+
+            var dictionaries = result
+            .Select(r => (IDictionary<string, object>)r)
+            .ToList();
+
+            foreach (var d in dictionaries)
+            {
+                var requestId = (int)d["RequestID"];
+                var format = (string)d["DataFormat"];
+                
+                var request = requests.FirstOrDefault(r => r.ID == requestId);
+                if (request != null)
+                {
+                    request.DataFormat.Add(format);
+                    
                 }
             }
         }
