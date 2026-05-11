@@ -151,6 +151,16 @@ namespace RequestApp.ViewModels
             }
         }
 
+        [ObservableProperty]
+        private bool dataFormatSAS;
+        [ObservableProperty]
+        private bool dataFormatSPSS;
+        [ObservableProperty]
+        private bool dataFormatSTATA;
+        [ObservableProperty]
+        private bool dataFormatOther;
+        public string DataFormatOtherDescription { get; set; }
+
         public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
 
         partial void OnSelectedProjectChanged(string oldValue, string newValue)
@@ -162,6 +172,62 @@ namespace RequestApp.ViewModels
 
             OnPropertyChanged(nameof(FilteredDataSets));
             
+        }
+
+        partial void OnDataFormatSASChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_model.DataFormat.Contains("SAS"))
+                    _model.DataFormat.Add("SAS");
+            }
+            else
+            {
+                if (_model.DataFormat.Contains("SAS"))
+                    _model.DataFormat.Remove("SAS");
+            }
+        }
+
+        partial void OnDataFormatSPSSChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_model.DataFormat.Contains("SPSS"))
+                    _model.DataFormat.Add("SPSS");
+            }
+            else
+            {
+                if (_model.DataFormat.Contains("SPSS"))
+                    _model.DataFormat.Remove("SPSS");
+            }
+        }
+
+        partial void OnDataFormatSTATAChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_model.DataFormat.Contains("STATA"))
+                    _model.DataFormat.Add("STATA");
+            }
+            else
+            {
+                if (_model.DataFormat.Contains("STATA"))
+                    _model.DataFormat.Remove("STATA");
+            }
+        }
+
+        partial void OnDataFormatOtherChanged(bool oldValue, bool newValue)
+        {
+            if (newValue)
+            {
+                if (!_model.DataFormat.Any(x => x != "SAS" && x != "SPSS" && x != "STATA"))
+                    _model.DataFormat.Add(DataFormatOtherDescription);
+            }
+            else
+            {
+                if (_model.DataFormat.Any(x => x != "SAS" && x != "SPSS" && x != "STATA"))
+                    _model.DataFormat.RemoveAll(x => x != "SAS" && x != "SPSS" && x != "STATA");
+            }
         }
 
         [RelayCommand]
