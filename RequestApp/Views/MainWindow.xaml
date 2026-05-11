@@ -7,7 +7,7 @@
         mc:Ignorable="d" Title="ITC Data Request Tracker"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ThreeDBorderWindow"
-        d:Height="600" d:Width="1000" Height="800" Width="1050">
+        d:Height="600" d:Width="1000" Height="850" Width="1050">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
@@ -26,11 +26,11 @@
             <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30"/>
         </DockPanel>
 
-        
+   
         <DockPanel Grid.Column="1" Grid.Row="0">
             <Button Content="Send Email" Margin="0,5,5,5" Command="{Binding ViewEmailTemplatesCommand}"/>
             <Button Content="Add" Command="{Binding AddCommand}" Margin="5,5,5,5" Padding="10,5"/>
-
+            
             <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="5,5,5,5" Padding="10,5" DockPanel.Dock="Left"/>
             <Popup IsOpen="{Binding ShowSortPopup}" PlacementTarget="{Binding ElementName=SortButton}">
                 <StackPanel Background="White" Margin="5">
