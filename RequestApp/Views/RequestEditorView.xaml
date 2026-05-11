@@ -21,8 +21,8 @@
             <RowDefinition Height="25"/>
             <RowDefinition Height="25"/>
             <RowDefinition Height="25"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -52,8 +52,17 @@
         <TextBlock Text="Last Signed Date: " Grid.Row="3" Grid.Column="0" FontWeight="Bold"/>
         <DatePicker SelectedDate="{Binding LatestSigning}" Grid.Column="1" Grid.Row="3"/>
         <ComboBox SelectedItem="{Binding InternalExternal}" Grid.Column="1" Grid.Row="4"/>
-        <TextBlock Text="Notes" Grid.Row="5" Grid.Column="0" FontWeight="Bold"/>
-        <TextBox Text="{Binding Notes}" Grid.Column="1" Grid.Row="5" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+        <TextBlock Text="Data Format:" Grid.Row="5" Grid.Column="0" FontWeight="Bold" Margin="3"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1">
+            <CheckBox Content="SAS" IsChecked="{Binding DataFormatSAS}" Margin="3"/>
+            <CheckBox Content="SPSS" IsChecked="{Binding DataFormatSPSS}" Margin="3"/>
+            <CheckBox Content="STATA" IsChecked="{Binding DataFormatSTATA}" Margin="3"/>
+            <CheckBox Content="Other" IsChecked="{Binding DataFormatOther}" Margin="3"/>
+            <TextBox Text="{Binding DataFormatOtherDescription}" Width="75" Margin="3" IsEnabled="{Binding DataFormatOther}"/>
+        </StackPanel>
+
+        <TextBlock Text="Notes" Grid.Row="6" Grid.Column="0" FontWeight="Bold"/>
+        <TextBox Text="{Binding Notes}" Grid.Column="1" Grid.Row="6" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
 
         <StackPanel Grid.Row="8" Grid.Column="1">
             <Button Content="Save" Command="{Binding SaveCommand}" Margin="5"/>
