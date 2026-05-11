@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace RequestApp.Models
@@ -14,9 +15,9 @@ namespace RequestApp.Models
         public string InternalExternal { get; set; }
         public string Notes { get; set; }
 
-        public string Format { get; set; }
+        public List<string> DataFormat { get; set; } = [];
 
-        public ObservableCollection<ITCDataSet> DataSets { get; set; } = new();
+        public ObservableCollection<ITCDataSet> DataSets { get; set; } = [];
     }
 
     
