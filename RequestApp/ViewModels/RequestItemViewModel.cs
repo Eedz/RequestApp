@@ -35,11 +35,6 @@ namespace RequestApp.ViewModels
                 OnPropertyChanged(nameof(DataSets));
                 OnPropertyChanged(nameof(DataSetCount));
             } }
-        public RequestEditorViewModel EditorViewModel { get; set; }
-        [ObservableProperty]
-        private bool isEditing = false;
-
-        public bool IsNew => _model.ID == 0;
 
         #region Model properties
         public string Status => _model.Status;
@@ -65,11 +60,8 @@ namespace RequestApp.ViewModels
             _model = model;
             _requestService = requestService;
             _dialogService = dialogService; 
-            
         }
 
-
-        
 
         [RelayCommand]
         private void Email()
@@ -90,36 +82,21 @@ namespace RequestApp.ViewModels
         [RelayCommand]
         private async Task Edit()
         {
-            IsEditing = true;
+            var vm = new RequestEditorViewModel(_model, _requestService);
+            
+            await vm.LoadAsync();
+            var result = _dialogService.ShowDialog(vm);
 
-            
-            
-            EditorViewModel = new RequestEditorViewModel(_model, _requestService);
-            await EditorViewModel.LoadAsync();
-            EditorViewModel.RequestClose += (s, e) => { 
-                IsEditing = false;
-                if (e.DialogResult == true)
-                    Model = EditorViewModel.Model; // Update the model with any changes from the editor
-                
-            };
-            OnPropertyChanged(nameof(EditorViewModel));
-
-            
-
-            
+            if (result == true)
+            {
+                await _requestService.UpdateRequest(vm.Model);
+                this.Model = vm.Model;
+            }
         }
 
         [RelayCommand]
         private async Task Delete()
         {
-            if (IsNew)
-            {
-                if (_dialogService.Confirm("Are you sure you want to cancel this request?", "Confirm Delete"))
-                    
-                    DeleteRequested?.Invoke(this, EventArgs.Empty);
-
-                return;
-            }
             if (_dialogService.Confirm("Are you sure you want to delete this request?", "Confirm Delete"))
                 if (_dialogService.Confirm("Just to be extra sure. Are you sure you want to delete it?", "Confirm Delete"))
                     if (await _requestService.DeleteRequest(_model.ID))
