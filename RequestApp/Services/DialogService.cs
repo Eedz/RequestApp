@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace RequestApp
+namespace RequestApp.Services
 {
     public class DialogService : IDialogService
     {
