@@ -60,10 +60,9 @@ namespace RequestApp
 
         public async Task<List<string>> GetProjects()
         {
-            var requests = await _repository.GetRequests();
-            var projects = requests.SelectMany(x=>x.DataSets)
-                                   .Select(ds => ds.ProjectName)
-                                   .Distinct()
+            var datasets = await _repository.GetDataSets();
+            var projects = datasets.Select(ds => ds.ProjectName)
+                                   .Distinct().OrderBy(x=>x)
                                    .ToList();
 
             return projects;
