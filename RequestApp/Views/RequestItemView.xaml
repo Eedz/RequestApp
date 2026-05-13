@@ -78,10 +78,5 @@
                 </StackPanel>
             </StackPanel>
         </Border>
-        <Popup IsOpen="{Binding IsEditing}" StaysOpen="True" Placement="Center">
-            <Border Background="{StaticResource AppBackgroundBrush}" BorderBrush="Black" BorderThickness="1" Padding="10">
-                <local:RequestEditorView DataContext="{Binding EditorViewModel}" />
-            </Border>
-        </Popup>
     </Grid>
 </UserControl>
