@@ -20,46 +20,7 @@ namespace RequestApp.ViewModels
 
         public Request Model => _model;
 
-        public List<Requester> RequesterNames { get; set; } = new List<Requester>();
-        public List<string> AvailableProjects { get; set; } = new List<string>();
-        public ObservableCollection<ITCDataSet> AvailableDataSets { get; set; } = new ObservableCollection<ITCDataSet>();
-        public ObservableCollection<ITCDataSet> FilteredDataSets { get; set; } = new ObservableCollection<ITCDataSet>();
-
-
-        [ObservableProperty]
-        private bool dropDownNames = false;
-
-        [ObservableProperty]
-        private string selectedProject;
-
-        public RequestEditorViewModel(Request model, IDataRequestService requestService)
-        {
-            _requestService = requestService;
-            _original = model;
-            _model = new Request()
-            {
-                ID = model.ID,
-                Status = model.Status,
-                Requester = model.Requester,    
-                LatestSigning = model.LatestSigning,
-                ExpiryDate = model.ExpiryDate,
-                AuthorizedBy = model.AuthorizedBy,
-                InternalExternal = model.InternalExternal,
-                Notes = model.Notes,
-                DataSets = new ObservableCollection<ITCDataSet>(model.DataSets)
-            };
-        }
-
-        public async Task LoadAsync()
-        {
-            RequesterNames = await _requestService.GetRequesters();
-            OnPropertyChanged(nameof(RequesterNames));
-            AvailableProjects = await _requestService.GetProjects();
-            OnPropertyChanged(nameof(AvailableProjects));
-            AvailableDataSets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
-            FilteredDataSets = new ObservableCollection<ITCDataSet>(AvailableDataSets);
-        }
-
+        #region Model Properties
         public string Status
         {
             get => _model.Status;
@@ -150,6 +111,14 @@ namespace RequestApp.ViewModels
                 }
             }
         }
+        public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
+        #endregion
+
+        public List<Requester> RequesterNames { get; set; } = [];
+        public List<string> AvailableProjects { get; set; } = [];
+        public ObservableCollection<ITCDataSet> AvailableDataSets { get; set; } = [];
+        public ObservableCollection<ITCDataSet> FilteredDataSets { get; set; } = [];
+        public List<string> InternalExternalList { get; } = ["Internal", "External"];
 
         [ObservableProperty]
         private bool dataFormatSAS;
@@ -161,7 +130,28 @@ namespace RequestApp.ViewModels
         private bool dataFormatOther;
         public string DataFormatOtherDescription { get; set; }
 
-        public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
+        [ObservableProperty]
+        private bool dropDownNames = false;
+
+        [ObservableProperty]
+        private string selectedProject;
+
+        public RequestEditorViewModel(Request model, IDataRequestService requestService)
+        {
+            _requestService = requestService;
+            _original = model;
+            _model = model.Clone();
+        }
+
+        public async Task LoadAsync()
+        {
+            RequesterNames = await _requestService.GetRequesters();
+            OnPropertyChanged(nameof(RequesterNames));
+            AvailableProjects = await _requestService.GetProjects();
+            OnPropertyChanged(nameof(AvailableProjects));
+            AvailableDataSets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
+            FilteredDataSets = new ObservableCollection<ITCDataSet>(AvailableDataSets);
+        }
 
         partial void OnSelectedProjectChanged(string oldValue, string newValue)
         {
@@ -171,7 +161,6 @@ namespace RequestApp.ViewModels
                 FilteredDataSets = new ObservableCollection<ITCDataSet>(AvailableDataSets.Where(ds => ds.ProjectName == newValue));
 
             OnPropertyChanged(nameof(FilteredDataSets));
-            
         }
 
         partial void OnDataFormatSASChanged(bool oldValue, bool newValue)
@@ -233,7 +222,6 @@ namespace RequestApp.ViewModels
         [RelayCommand]
         public void Save()
         {           
-            _requestService.UpdateRequest(_model);
             OnRequestClose(true);
         }
 
@@ -253,15 +241,12 @@ namespace RequestApp.ViewModels
         public void ShowNames()
         {
             DropDownNames = !DropDownNames;
-            
         }
 
         [RelayCommand]
         public void Cancel()
         {
             OnRequestClose(false);
-        }
-
-        
+        }        
     }
 }
