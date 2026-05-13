@@ -42,5 +42,15 @@ namespace RequestApp.Models
 
             return input;
         }
+
+        public ITCDataSet Clone()
+        {
+            return new ITCDataSet
+            {
+                ID = ID,
+                Name = Name
+                
+            };
+        }
     }
 }

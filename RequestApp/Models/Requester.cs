@@ -21,5 +21,19 @@ namespace RequestApp.Models
         public string FullName => $"{FirstName} {LastName}";
         public string ReversedFullName => $"{LastName}, {FirstName}";
 
+        public Requester Clone()
+        {
+            return new Requester
+            {
+                ID = ID,
+                FirstName = FirstName,
+                LastName = LastName,
+                Email = Email,
+                Affiliation = Affiliation,
+                CountryTeamMember = CountryTeamMember,
+                WebsiteMember = WebsiteMember,
+                DataUser = DataUser
+            };
+        }
     }
 }
