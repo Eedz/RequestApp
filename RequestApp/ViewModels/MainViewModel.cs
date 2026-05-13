@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
+
 namespace RequestApp.ViewModels
 {
     public partial class MainViewModel : ViewModelBase
@@ -21,15 +22,15 @@ namespace RequestApp.ViewModels
         private readonly IDataRequestService _requestService;
         private readonly IDialogService _dialogService;
 
-        public ObservableCollection<RequestItemViewModel> Requests { get; } = new ObservableCollection<RequestItemViewModel>();
+        public ObservableCollection<RequestItemViewModel> Requests { get; } = [];
         public int RequestCount => Requests.Count;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsFiltered))]
         private ObservableCollection<RequestItemViewModel> displayedRequests;
 
-        public ObservableCollection<Requester> Names { get; set; } = new ObservableCollection<Requester>();
-        public ObservableCollection<ITCDataSet> Datasets { get; set; } = new ObservableCollection<ITCDataSet>();
+        public ObservableCollection<Requester> Names { get; set; } = [];
+        public ObservableCollection<ITCDataSet> Datasets { get; set; } = [];
 
         [ObservableProperty]
         private bool showFilterPopup;
@@ -41,7 +42,7 @@ namespace RequestApp.ViewModels
 
         public bool IsFiltered => DisplayedRequests.Count != Requests.Count;
 
-        public List<string> SortOptions { get; } = new List<string>() { "Expiry Date", "Requester" };
+        public List<string> SortOptions { get; } = ["Expiry Date", "Requester"];
 
         [ObservableProperty]
         private bool showSortPopup;
@@ -66,7 +67,7 @@ namespace RequestApp.ViewModels
             {
                 var json = await File.ReadAllTextAsync("requests.json");
                 requests = JsonSerializer.Deserialize<List<Request>>(json)
-                                ?? new List<Request>();
+                                ?? [];
             }
 
             // create view models for each request and subscribe to their delete events
@@ -122,34 +123,31 @@ namespace RequestApp.ViewModels
         [RelayCommand]
         private async Task Add()
         {
-            var newRequest = new Request
+            var request = new Request
             {
                 Status = "New",
                 Requester = new Requester()
             };
-            var newRequestVM = new CreateRequestViewModel(newRequest, _requestService);
-            await newRequestVM.Load();
-            newRequestVM.SaveRequested += NewItem_SaveRequested;
-            var result = _dialogService.ShowDialog(newRequestVM);
-        }
 
-        private async void NewItem_SaveRequested(object sender, EventArgs e)
+            var vm = new RequestEditorViewModel(
+                request,
+                _requestService);
+
+            await vm.LoadAsync();
+
+            var result = _dialogService.ShowDialog(vm);
+
+            if (result == true)
         {
-            if (sender is not CreateRequestViewModel createVM)
-                return;
-            createVM.SaveRequested -= NewItem_SaveRequested;
-            var success = await _requestService.CreateRequest(createVM.GetRequest());
+                var success = await _requestService.CreateRequest(vm.Model);
+
             if (success)
             {
-                var newItemVM = new RequestItemViewModel(createVM.GetRequest(), _requestService, _dialogService);
-                newItemVM.DeleteRequested += Item_DeleteRequested;
-
-                Requests.Add(newItemVM);
-                createVM.CloseCommand.Execute(true);
+                    Requests.Add(new RequestItemViewModel(
+                        vm.Model,
+                        _requestService,
+                        _dialogService));
             }
-            else
-            {
-                _dialogService.ShowMessage("Error", "Failed to save the request.");
             }
         }
 
