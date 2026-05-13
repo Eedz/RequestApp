@@ -164,9 +164,6 @@
             <DataTemplate DataType="{x:Type viewmodels:RequestEditorViewModel}">
                 <local:RequestEditorView />
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:CreateRequestViewModel}">
-                <local:CreateRequestView/>
-            </DataTemplate>
 
         </ResourceDictionary>
         
