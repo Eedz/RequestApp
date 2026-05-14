@@ -11,84 +11,96 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="50"></RowDefinition>
-        </Grid.RowDefinitions>
+    <DockPanel>
 
-        <DockPanel  >
-            <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30"/>
-        </DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="File">
+                
+                <MenuItem Header="Exit" Command="{Binding ExitCommand}" />
+            </MenuItem>
+            <MenuItem Header="Emails">
+                <MenuItem Header="Data set Update" Command="{Binding UpdateDataSetCommand}"/>
+                <MenuItem Header="Expired"/>
+            </MenuItem>
+            <MenuItem Header="Request Forms..." Command="{Binding GoToRequestFolderCommand}"/>
+        </Menu>
 
-   
-        <DockPanel Grid.Column="1" Grid.Row="0">
-            <Button Content="Send Email" Margin="0,5,5,5" Command="{Binding ViewEmailTemplatesCommand}"/>
-            <Button Content="Add" Command="{Binding AddCommand}" Margin="5,5,5,5" Padding="10,5"/>
-            
-            <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="5,5,5,5" Padding="10,5" DockPanel.Dock="Left"/>
-            <Popup IsOpen="{Binding ShowSortPopup}" PlacementTarget="{Binding ElementName=SortButton}">
-                <StackPanel Background="White" Margin="5">
-                    <TextBlock Text="Sort By:" FontWeight="Bold" Margin="0,0,0,5"/>
-                    <ComboBox ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" Margin="2,2,2,5"/>
-                    <Button Content="Apply Sort" Command="{Binding ApplySortCommand}" Margin="2,2,2,5"/>
-                </StackPanel>
-            </Popup>
-                  
-            
-            <Button x:Name="FilterButton" DockPanel.Dock="Right" Content="Filter By" Command="{Binding ShowFilterCommand}" Margin="10,5,15,5" Padding="10,5"/>
-            <Button Content="Clear" Command="{Binding ClearFilterCommand}" DockPanel.Dock="Right" Margin="10,5,0,5" Visibility="{Binding IsFiltered, Converter={StaticResource BoolToVis}}"/>
-            <Popup  IsOpen="{Binding ShowFilterPopup}" PlacementTarget="{Binding ElementName=FilterButton}">
-                <Border Background="White" BorderBrush="Gray" BorderThickness="2">
-                    <Grid  Margin="2" >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition></ColumnDefinition>
-                            <ColumnDefinition></ColumnDefinition>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
+            </Grid.RowDefinitions>
 
-                        <TextBlock Text="Filter By:" FontWeight="Bold" Margin="0,0,0,5" Grid.Row="0"/>
+            <DockPanel  >
+                <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30"/>
+            </DockPanel>
 
-                        <TextBlock Text="Requester: " Grid.Row="1"/>
-                        <ComboBox ItemsSource="{Binding Names}" SelectedItem="{Binding SelectedName}" DisplayMemberPath="ReversedFullName" Margin="2,2,2,5" Width="75" Grid.Column="1" Grid.Row="1"/>
+            <!-- Button menu -->
+            <DockPanel Grid.Column="1" Grid.Row="0">
+                <Button Content="Send Email" Margin="0,5,5,5" Command="{Binding ViewEmailTemplatesCommand}"/>
+                <Button Content="Add" Command="{Binding AddCommand}" Margin="5,5,5,5" Padding="10,5"/>
 
-                        <TextBlock Text="---- OR ----" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2"/>
+                <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="5,5,5,5" Padding="10,5" DockPanel.Dock="Left"/>
+                <Popup IsOpen="{Binding ShowSortPopup}" PlacementTarget="{Binding ElementName=SortButton}">
+                    <StackPanel Background="White" Margin="5">
+                        <TextBlock Text="Sort By:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" Margin="2,2,2,5"/>
+                        <Button Content="Apply Sort" Command="{Binding ApplySortCommand}" Margin="2,2,2,5"/>
+                    </StackPanel>
+                </Popup>
 
-                        <TextBlock Text="Data Set: " Grid.Row="3"/>
-                        <ComboBox ItemsSource="{Binding Datasets}" SelectedItem="{Binding SelectedDataSet}" DisplayMemberPath="Name" Margin="2,2,2,5" Width="75" Grid.Column="1" Grid.Row="3"/>
 
-                        <Button Content="Apply Filter" Command="{Binding ApplyFilterCommand}" Margin="2,2,2,5" Grid.Column="1" Grid.Row="4"/>
-                    </Grid>
+                <Button x:Name="FilterButton" DockPanel.Dock="Right" Content="Filter By" Command="{Binding ShowFilterCommand}" Margin="10,5,15,5" Padding="10,5"/>
+                <Button Content="Clear" Command="{Binding ClearFilterCommand}" DockPanel.Dock="Right" Margin="10,5,0,5" Visibility="{Binding IsFiltered, Converter={StaticResource BoolToVis}}"/>
+                <Popup  IsOpen="{Binding ShowFilterPopup}" PlacementTarget="{Binding ElementName=FilterButton}">
+                    <Border Background="White" BorderBrush="Gray" BorderThickness="2">
+                        <Grid  Margin="2" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition></ColumnDefinition>
+                                <ColumnDefinition></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
 
-                </Border>
-            </Popup>
-        </DockPanel>
+                            <TextBlock Text="Filter By:" FontWeight="Bold" Margin="0,0,0,5" Grid.Row="0"/>
 
-        <StackPanel Height="600" Grid.Row="1" Grid.ColumnSpan="2">
-            
-            <ListBox ItemsSource="{Binding DisplayedRequests}" Height="600" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                            <TextBlock Text="Requester: " Grid.Row="1"/>
+                            <ComboBox ItemsSource="{Binding Names}" SelectedItem="{Binding SelectedName}" DisplayMemberPath="ReversedFullName" Margin="2,2,2,5" Width="75" Grid.Column="1" Grid.Row="1"/>
+
+                            <TextBlock Text="---- OR ----" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2"/>
+
+                            <TextBlock Text="Data Set: " Grid.Row="3"/>
+                            <ComboBox ItemsSource="{Binding Datasets}" SelectedItem="{Binding SelectedDataSet}" DisplayMemberPath="Name" Margin="2,2,2,5" Width="75" Grid.Column="1" Grid.Row="3"/>
+
+                            <Button Content="Apply Filter" Command="{Binding ApplyFilterCommand}" Margin="2,2,2,5" Grid.Column="1" Grid.Row="4"/>
+                        </Grid>
+
+                    </Border>
+                </Popup>
+            </DockPanel>
+            <!-- Request List -->
+            <ListBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding DisplayedRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <local:RequestItemView></local:RequestItemView>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-        </StackPanel>
-
-        <DockPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="5" >
-            <TextBlock Text="ITC Project 2026"  HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="18"/>
-            <TextBlock Text="{Binding RequestCount, StringFormat='Total Requests: {0}'}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="18"/>
-        </DockPanel>
-    </Grid>
+            <!-- Bottom row info -->
+            <DockPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="5" >
+                <TextBlock Text="ITC Project 2026"  HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="18"/>
+                <TextBlock d:Text="Total Requests: 500" Text="{Binding RequestCount, StringFormat='Total Requests: {0}'}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="18"/>
+            </DockPanel>
+        </Grid>
+    </DockPanel>
 </Window>
