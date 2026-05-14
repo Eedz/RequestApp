@@ -76,7 +76,7 @@
             <TextBlock Text="Data Sets" FontWeight="Bold" HorizontalAlignment="Center"/>
 
         </StackPanel>
-        <ListBox  x:Name="DataSetsListBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding DataSets}" Margin="3" Height="Auto" MinHeight="200" VerticalAlignment="Top">
+        <ListBox  x:Name="DataSetsListBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding DataSets}" Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -96,7 +96,7 @@
 
         </StackPanel>
 
-        <ListBox x:Name="AvailableDataSetsListBox" Grid.Column="4" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding FilteredDataSets}" Margin="3" Height="200" VerticalAlignment="Top">
+        <ListBox x:Name="AvailableDataSetsListBox" Grid.Column="4" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding FilteredDataSets}" Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}" Margin="5"/>
@@ -110,7 +110,7 @@
         </StackPanel>
 
         <ListBox x:Name="AvailableProjectsListBox" Grid.Column="5" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding AvailableProjects}" SelectedItem="{Binding SelectedProject}"
-                 Margin="3" Height="200" VerticalAlignment="Top">
+                 Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding}" Margin="5"/>
