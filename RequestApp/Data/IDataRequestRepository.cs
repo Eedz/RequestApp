@@ -78,7 +78,7 @@ namespace RequestApp
         // -------------------------
         // UPDATE
         // -------------------------
-        public async Task<bool> UpdateRequest(Request request)
+        public async Task<bool> UpdateRequest_old(Request request)
         {
             using var connection = CreateConnection();
 
@@ -107,6 +107,118 @@ namespace RequestApp
             });
 
             return rows > 0;
+        }
+
+        public async Task<bool> UpdateRequest(Request request)
+        {
+            using var connection = CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                await UpdateRequestRow(request, connection, transaction);
+
+                await SyncRequestDataSets(request, connection, transaction);
+
+                transaction.Commit();
+
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        private async Task UpdateRequestRow(Request request, IDbConnection connection, IDbTransaction transaction)
+        {
+            var sql = @"
+                UPDATE DataRequests.Requests
+                SET
+                    Status = @Status,
+                    RequesterID = @RequesterID,
+                    LatestSigning = @LatestSigning,
+                    ExpiryDate = @ExpiryDate,
+                    AuthorizedBy = @AuthorizedBy,
+                    InternalExternal = @InternalExternal,
+                    Notes = @Notes
+                WHERE ID = @ID";
+
+            await connection.ExecuteAsync(sql, new
+            {
+                request.ID,
+                request.Status,
+                RequesterID = request.Requester.ID,
+                request.LatestSigning,
+                request.ExpiryDate,
+                request.AuthorizedBy,
+                request.InternalExternal,
+                request.Notes
+            }, transaction);
+        }
+
+        private async Task SyncRequestDataSets(Request request, IDbConnection connection, IDbTransaction transaction)
+        {
+            // current rows in DB
+            var existingIds = (await connection.QueryAsync<int>(@"
+                    SELECT DataSetID
+                    FROM DataRequests.DataRequestDataSets
+                    WHERE RequestID = @RequestID",
+                    new
+                    {
+                        RequestID = request.ID
+                    },
+                    transaction))
+                    .ToList();
+
+            // current datasets in memory
+            var currentIds = request.DataSets
+                .Select(x => x.ID)
+                .ToList();
+
+            // determine differences
+            var addedIds = currentIds.Except(existingIds);
+
+            var removedIds = existingIds.Except(currentIds);
+
+            // insert newly added datasets
+            foreach (var dataSetId in addedIds)
+            {
+                await connection.ExecuteAsync(@"
+                    INSERT INTO DataRequests.DataRequestDataSets
+                    (
+                        RequestID,
+                        DataSetID
+                    )
+                    VALUES
+                    (
+                        @RequestID,
+                        @DataSetID
+                    )",
+                    new
+                    {
+                        RequestID = request.ID,
+                        DataSetID = dataSetId
+                    },
+                    transaction);
+            }
+
+            // remove deleted datasets
+            foreach (var dataSetId in removedIds)
+            {
+                await connection.ExecuteAsync(@"
+                    DELETE FROM DataRequests.DataRequestDataSets
+                    WHERE RequestID = @RequestID
+                    AND DataSetID = @DataSetID",
+                    new
+                    {
+                        RequestID = request.ID,
+                        DataSetID = dataSetId
+                    },
+                    transaction);
+            }
         }
 
         // -------------------------
