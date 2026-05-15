@@ -52,5 +52,10 @@ namespace RequestApp.Models
                 
             };
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
