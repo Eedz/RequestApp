@@ -15,7 +15,7 @@ namespace RequestApp.Models
         public string AuthorizedBy { get; set; }
         public string InternalExternal { get; set; }
         public string Notes { get; set; }
-
+        public bool PartialDataSets { get; set; }
         public List<string> DataFormat { get; set; } = [];
 
         public ObservableCollection<ITCDataSet> DataSets { get; set; } = [];
@@ -33,6 +33,7 @@ namespace RequestApp.Models
                 AuthorizedBy = AuthorizedBy,
                 InternalExternal = InternalExternal,
                 Notes = Notes,
+                PartialDataSets = PartialDataSets,
 
                 // strings are immutable so shallow copy is fine
                 DataFormat = new List<string>(DataFormat),
