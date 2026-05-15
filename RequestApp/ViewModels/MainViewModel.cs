@@ -75,7 +75,7 @@ namespace RequestApp.ViewModels
 
             // create view models for each request and subscribe to their delete events
             Requests.Clear();
-            foreach (var request in requests)
+            foreach (var request in requests.OrderByDescending(x=>x.ExpiryDate))
             {
                 var vm = new RequestItemViewModel(request, _requestService, _dialogService);
                 vm.DeleteRequested += Item_DeleteRequested;
@@ -167,12 +167,10 @@ namespace RequestApp.ViewModels
             {
                 DisplayedRequests.Clear();
                 DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests.Where(r => r.Requester?.ID == SelectedName.ID));
-                return;
             }else if (SelectedDataSet != null)
             {
                 DisplayedRequests.Clear();
                 DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests.Where(r => r.DataSets.Any(x => x.Name == SelectedDataSet.Name)));
-                return;
             }else
             {
                 DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests);
@@ -222,14 +220,21 @@ namespace RequestApp.ViewModels
         [RelayCommand]
         private void UpdateDataSet()
         {
-            string subject = WebUtility.UrlEncode("Data Request Reminder");
-            string body = WebUtility.UrlEncode("Line 1\nLine 2");
+            // show popup for getting which data set
+            var vm = new QuickPickerViewModel("Data Set", Datasets);
+            if (_dialogService.ShowDialog(vm) != true) return;
 
-            string mailto = $"mailto:test@example.com?subject={subject}&body={body}";
+            var dataset = (ITCDataSet) vm.SelectedItem;
+            // get requests for that data set
+            var requests = Requests.Where(x => x.DataSets.Any(d => d.Name == dataset.Name));
 
+            string recipients = string.Join(";", requests.Select(x => x.Requester.Email).Distinct());
+            string subject = "Data Set Update";
+            string body = datasetUpdateEmail;
 
+            string mailtoUrl = $"mailto:{Uri.EscapeDataString(recipients)}?subject={subject}&body={body}";
 
-            Process.Start(new ProcessStartInfo(mailto)
+            Process.Start(new ProcessStartInfo(mailtoUrl)
             {
                 UseShellExecute = true
             });
