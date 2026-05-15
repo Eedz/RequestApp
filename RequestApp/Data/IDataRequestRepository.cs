@@ -48,7 +48,8 @@ namespace RequestApp
                 ExpiryDate,
                 AuthorizedBy,
                 InternalExternal,
-                Notes
+                Notes,
+                PartialDataSets
             )
             VALUES
             (
@@ -58,7 +59,8 @@ namespace RequestApp
                 @ExpiryDate,
                 @AuthorizedBy,
                 @InternalExternal,
-                @Notes
+                @Notes,
+                @Partial
             )";
 
             var rows = await connection.ExecuteAsync(sql, new
@@ -69,7 +71,8 @@ namespace RequestApp
                 request.ExpiryDate,
                 request.AuthorizedBy,
                 request.InternalExternal,
-                request.Notes
+                request.Notes,
+                Partial = request.PartialDataSets
             });
 
             return rows > 0;
@@ -78,37 +81,6 @@ namespace RequestApp
         // -------------------------
         // UPDATE
         // -------------------------
-        public async Task<bool> UpdateRequest_old(Request request)
-        {
-            using var connection = CreateConnection();
-
-            var sql = @"
-            UPDATE DataRequests.Requests
-            SET
-                Status = @Status,
-                RequesterID = @RequesterID,
-                LatestSigning = @LatestSigning,
-                ExpiryDate = @ExpiryDate,
-                AuthorizedBy = @AuthorizedBy,
-                InternalExternal = @InternalExternal,
-                Notes = @Notes
-            WHERE ID = @ID";
-
-            var rows = await connection.ExecuteAsync(sql, new
-            {
-                request.ID,
-                request.Status,
-                RequesterID = request.Requester.ID,
-                request.LatestSigning,
-                request.ExpiryDate,
-                request.AuthorizedBy,
-                request.InternalExternal,
-                request.Notes
-            });
-
-            return rows > 0;
-        }
-
         public async Task<bool> UpdateRequest(Request request)
         {
             using var connection = CreateConnection();
@@ -120,6 +92,8 @@ namespace RequestApp
                 await UpdateRequestRow(request, connection, transaction);
 
                 await SyncRequestDataSets(request, connection, transaction);
+
+                await SyncRequestFormats(request, connection, transaction);
 
                 transaction.Commit();
 
@@ -143,7 +117,8 @@ namespace RequestApp
                     ExpiryDate = @ExpiryDate,
                     AuthorizedBy = @AuthorizedBy,
                     InternalExternal = @InternalExternal,
-                    Notes = @Notes
+                    Notes = @Notes,
+                    PartialDataSets = @Partial
                 WHERE ID = @ID";
 
             await connection.ExecuteAsync(sql, new
@@ -155,7 +130,8 @@ namespace RequestApp
                 request.ExpiryDate,
                 request.AuthorizedBy,
                 request.InternalExternal,
-                request.Notes
+                request.Notes,
+                Partial = request.PartialDataSets
             }, transaction);
         }
 
@@ -216,6 +192,68 @@ namespace RequestApp
                     {
                         RequestID = request.ID,
                         DataSetID = dataSetId
+                    },
+                    transaction);
+            }
+        }
+
+        private async Task SyncRequestFormats(Request request, IDbConnection connection, IDbTransaction transaction)
+        {
+            // current rows in DB
+            var existingFormats = (await connection.QueryAsync<string>(@"
+                    SELECT DataFormat
+                    FROM DataRequests.RequestDataFormats
+                    WHERE RequestID = @RequestID",
+                    new
+                    {
+                        RequestID = request.ID
+                    },
+                    transaction))
+                    .ToList();
+
+            // current datasets in memory
+            var currentFormats = request.DataFormat
+                .Select(x => x)
+                .ToList();
+
+            // determine differences
+            var addedFormats = currentFormats.Except(existingFormats);
+
+            var removedIds = existingFormats.Except(currentFormats);
+
+            // insert newly added datasets
+            foreach (var format in addedFormats)
+            {
+                await connection.ExecuteAsync(@"
+                    INSERT INTO DataRequests.RequestDataFormats
+                    (
+                        RequestID,
+                        DataFormat
+                    )
+                    VALUES
+                    (
+                        @RequestID,
+                        @DataFormat
+                    )",
+                    new
+                    {
+                        RequestID = request.ID,
+                        DataFormat = format
+                    },
+                    transaction);
+            }
+
+            // remove deleted datasets
+            foreach (var format in removedIds)
+            {
+                await connection.ExecuteAsync(@"
+                    DELETE FROM DataRequests.RequestDataFormats
+                    WHERE RequestID = @RequestID
+                    AND DataFormat = @DataSetID",
+                    new
+                    {
+                        RequestID = request.ID,
+                        DataFormat = format
                     },
                     transaction);
             }
@@ -291,6 +329,7 @@ namespace RequestApp
                 r.AuthorizedBy,
                 r.InternalExternal,
                 r.Notes,
+                r.PartialDataSets,
                 req.ID as RequesterID,
                 req.ID,
                 req.FirstName,
