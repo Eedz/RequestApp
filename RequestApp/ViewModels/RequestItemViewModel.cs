@@ -32,7 +32,9 @@ namespace RequestApp.ViewModels
                 OnPropertyChanged(nameof(AuthorizedBy));
                 OnPropertyChanged(nameof(InternalExternal));
                 OnPropertyChanged(nameof(Notes));
+                OnPropertyChanged(nameof(PartialDataSets));
                 OnPropertyChanged(nameof(DataSets));
+                OnPropertyChanged(nameof(DataFormat));
                 OnPropertyChanged(nameof(DataSetCount));
             } }
 
@@ -44,6 +46,7 @@ namespace RequestApp.ViewModels
         public string AuthorizedBy => _model.AuthorizedBy;
         public string InternalExternal => _model.InternalExternal;
         public string Notes => _model.Notes;
+        public bool PartialDataSets => _model.PartialDataSets;
         public string DataFormat => string.Join(", ", _model.DataFormat);
         public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
         public int DataSetCount => _model.DataSets.Count;   
