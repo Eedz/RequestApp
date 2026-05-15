@@ -111,6 +111,19 @@ namespace RequestApp.ViewModels
                 }
             }
         }
+
+        public bool PartialDataSets
+        {
+            get => _model.PartialDataSets;
+            set
+            {
+                if (_model.PartialDataSets != value)
+                {
+                    _model.PartialDataSets = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
         public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
         #endregion
 
@@ -141,6 +154,14 @@ namespace RequestApp.ViewModels
             _requestService = requestService;
             _original = model;
             _model = model.Clone();
+            if (_model.DataFormat.Contains("SAS")) DataFormatSAS = true;
+            if (_model.DataFormat.Contains("SPSS")) DataFormatSPSS = true;
+            if (_model.DataFormat.Contains("STATA")) DataFormatSTATA = true;
+            if (_model.DataFormat.Any(x => x != "SAS" && x != "SPSS" && x != "STATA"))
+            {
+                DataFormatOther = true;
+                DataFormatOtherDescription = _model.DataFormat.FirstOrDefault(x => x != "SAS" && x != "SPSS" && x != "STATA");
+            }
         }
 
         public async Task LoadAsync()
