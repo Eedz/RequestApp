@@ -42,10 +42,9 @@
 
             <!-- Button menu -->
             <DockPanel Grid.Column="1" Grid.Row="0">
-                <Button Content="Send Email" Margin="0,5,5,5" Command="{Binding ViewEmailTemplatesCommand}"/>
-                <Button Content="Add" Command="{Binding AddCommand}" Margin="5,5,5,5" Padding="10,5"/>
+                <Button Content="New*" Command="{Binding AddCommand}" Margin="5,5,5,5" Padding="10,5"/>
 
-                <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="5,5,5,5" Padding="10,5" DockPanel.Dock="Left"/>
+                <Button x:Name="SortButton" Content="Sort By" Command="{Binding ShowSortCommand}" Margin="5,5,5,5" Padding="10,5" DockPanel.Dock="Right"/>
                 <Popup IsOpen="{Binding ShowSortPopup}" PlacementTarget="{Binding ElementName=SortButton}">
                     <StackPanel Background="White" Margin="5">
                         <TextBlock Text="Sort By:" FontWeight="Bold" Margin="0,0,0,5"/>
