@@ -35,7 +35,7 @@ namespace RequestApp
 
         public async Task<bool> CreateRequest(Request request)
         {
-            return await _repository.CreateRequest(request);
+            return await _repository.CreateNewRequest(request);
         }
 
         public async Task<bool> UpdateRequest(Request request)
