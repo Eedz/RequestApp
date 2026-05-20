@@ -14,7 +14,7 @@ namespace RequestApp
         Task<List<Requester>> GetRequesters();
         Task<List<ITCDataSet>> GetDataSets();
         Task<List<Request>> GetRequests();  
-        Task<bool> CreateRequest(Request request);
+        Task<bool> CreateNewRequest(Request request);
         Task<bool> UpdateRequest(Request request);
         Task<bool> DeleteRequest(int requestId);
     }
@@ -35,10 +35,34 @@ namespace RequestApp
         // -------------------------
         // CREATE
         // -------------------------
-        public async Task<bool> CreateRequest(Request request)
+
+        public async Task<bool> CreateNewRequest(Request request)
         {
             using var connection = CreateConnection();
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
 
+            try
+            {
+                await CreateRequest(request, connection, transaction);
+
+                await SyncRequestDataSets(request, connection, transaction);
+
+                await SyncRequestFormats(request, connection, transaction);
+
+                transaction.Commit();
+
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        public async Task<bool> CreateRequest(Request request, IDbConnection connection, IDbTransaction transaction)
+        {
             var sql = @"
             INSERT INTO DataRequests.Requests
             (
@@ -73,7 +97,7 @@ namespace RequestApp
                 request.InternalExternal,
                 request.Notes,
                 Partial = request.PartialDataSets
-            });
+            }, transaction);
 
             return rows > 0;
         }
