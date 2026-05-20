@@ -15,6 +15,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace RequestApp.ViewModels
 {
@@ -232,12 +233,13 @@ namespace RequestApp.ViewModels
             string subject = "Data Set Update";
             string body = datasetUpdateEmail;
 
-            string mailtoUrl = $"mailto:{Uri.EscapeDataString(recipients)}?subject={subject}&body={body}";
+            var outlook = new Outlook.Application();
+            Outlook.MailItem mail = (Outlook.MailItem)outlook.CreateItem(Outlook.OlItemType.olMailItem);
 
-            Process.Start(new ProcessStartInfo(mailtoUrl)
-            {
-                UseShellExecute = true
-            });
+            mail.BCC = recipients;
+            mail.Subject = subject;
+            mail.Body = body;
+            mail.Display();
         }
 
         [RelayCommand]
