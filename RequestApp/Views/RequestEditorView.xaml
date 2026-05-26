@@ -36,10 +36,10 @@
            
         </DockPanel>
         <Popup IsOpen="{Binding DropDownNames}" PlacementTarget="{Binding ElementName=RequesterTextBox}">
-            <ListBox Height="100" Width="300" ItemsSource="{Binding RequesterNames}" SelectedItem="{Binding Requester, Mode=TwoWay}">
+            <ListBox Height="200" Width="300" ItemsSource="{Binding RequesterNames}" SelectedItem="{Binding Requester, Mode=TwoWay}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding FirstName}"/>
+                        <TextBlock Text="{Binding ReversedFullName}"/>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
