@@ -43,6 +43,7 @@ namespace RequestApp.ViewModels
                 {
                     _model.Requester = value;
                     OnPropertyChanged();
+                    DropDownNames = false;
                 }
             }
         }
@@ -166,7 +167,8 @@ namespace RequestApp.ViewModels
 
         public async Task LoadAsync()
         {
-            RequesterNames = await _requestService.GetRequesters();
+            var requesters = await _requestService.GetRequesters();
+            RequesterNames = requesters.OrderBy(x=>x.LastName).ToList();
             OnPropertyChanged(nameof(RequesterNames));
             AvailableProjects = await _requestService.GetProjects();
             OnPropertyChanged(nameof(AvailableProjects));
