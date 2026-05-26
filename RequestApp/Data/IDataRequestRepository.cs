@@ -85,9 +85,11 @@ namespace RequestApp
                 @InternalExternal,
                 @Notes,
                 @Partial
-            )";
+            );
 
-            var rows = await connection.ExecuteAsync(sql, new
+            SELECT SCOPE_IDENTITY();";
+
+            var requestId = await connection.ExecuteScalarAsync<long>(sql, new
             {
                 request.Status,
                 RequesterID = request.Requester.ID,
@@ -99,7 +101,10 @@ namespace RequestApp
                 Partial = request.PartialDataSets
             }, transaction);
 
-            return rows > 0;
+            // assign ID back to object
+            request.ID =(int)requestId;
+
+            return requestId > 0;
         }
 
         // -------------------------
