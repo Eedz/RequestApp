@@ -17,7 +17,8 @@ namespace RequestApp.Models
         public string CountryTeamMember { get; set; }
         public string WebsiteMember { get; set; }
         public bool DataUser { get; set; }
-
+        public bool StaffMember { get; set;  }
+        public bool CoreMember { get; set; }
         public string FullName => $"{FirstName} {LastName}";
         public string ReversedFullName => $"{LastName}, {FirstName}";
 
