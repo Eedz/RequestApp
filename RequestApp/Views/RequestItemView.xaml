@@ -5,37 +5,37 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RequestApp"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="1050" Height="165" Background="{StaticResource CardBorderBrush}">
-    <UserControl.Style>
-        <Style TargetType="UserControl">
-            <Style.Triggers>
-
-                <DataTrigger Binding="{Binding Status}"
-                             Value="Finished">
-
-                    <Setter Property="Opacity"
-                            Value="0.45"/>
-
-                </DataTrigger>
-
-            </Style.Triggers>
-        </Style>
-    </UserControl.Style>
+             d:DesignHeight="200" d:DesignWidth="1050" Height="155" Background="{StaticResource CardBorderBrush}">
     <Grid>
-        <Border Style="{StaticResource CardHoverStyle}">
+        <Border >
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource CardHoverStyle}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="Expired">
+                            <Setter Property="BorderBrush" Value="Red"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                            <Setter Property="Opacity" Value="0.45"/>
+                        </DataTrigger>
+
+                        <DataTrigger Binding="{Binding Status}" Value="Reminded">
+                            <Setter Property="BorderBrush" Value="Blue"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <StackPanel Orientation="Horizontal">
-
-
+                <!-- Requester info -->
                 <StackPanel Margin="0" Width="175">
                     <TextBlock d:Text="Requester's Name" Text="{Binding Requester.ReversedFullName}" FontWeight="Bold" FontSize="14"/>
                     <TextBlock d:Text="Affiliation" Text="{Binding Requester.Affiliation}" TextWrapping="Wrap"/>
                     <TextBlock d:Text="Requester's Email" Text="{Binding Requester.Email}"/>
-                    <TextBlock d:Text="Country Team" Text="{Binding Requester.CountryTeamMember, StringFormat='Country Team: {0}'}"/>
                     <TextBlock d:Text="Website?" Text="{Binding Requester.WebsiteMember, StringFormat='Website Member: {0}'}"/>
                     <CheckBox Content="Data User?" IsChecked="{Binding Requester.DataUser}" />
                 </StackPanel >
-
-                <StackPanel Margin="0" Width="175">
+                <!-- Request info -->
+                <StackPanel Margin="0" Width="185">
                     <TextBlock d:Text="Latest Signing" Text="{Binding LatestSigning, StringFormat='Latest Signing: {0:d}'}" FontWeight="Bold" FontSize="14"/>
                     
                     <TextBlock d:Text="Expiry date" Text="{Binding ExpiryDate, StringFormat='Expires: {0:d}'}"/>
@@ -43,12 +43,13 @@
                     <TextBlock d:Text="Internal/external" Text="{Binding InternalExternal}"/>
                     <TextBlock d:Text="Data Format(s):" Text="{Binding DataFormat, StringFormat='Data Format(s): {0}'}"/>
                 </StackPanel>
+                <!-- Data Sets -->
                 <StackPanel  Margin="0" Width="325">
                     <TextBlock HorizontalAlignment="Center">
                         <Run Text="Data Sets" FontWeight="Bold" />
                         <Run Text="{Binding DataSetCount, StringFormat=' ({0})', Mode=OneWay}" FontWeight="Bold" />
                     </TextBlock>
-                    <ScrollViewer Height="100">
+                    <ScrollViewer Height="90">
                         <ItemsControl ItemsSource="{Binding DataSets}"   Background="Transparent" >
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -64,16 +65,16 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <CheckBox IsChecked="{Binding PartialDataSets, Mode=OneWay}" Content="Partial Data Set(s)" />
+                    <CheckBox IsChecked="{Binding PartialDataSets, Mode=OneWay}" Content="Subset Data Set(s)" />
                 </StackPanel>
-                
+                <!-- Notes -->
                 <StackPanel Width="200" Margin="0">
                     <TextBlock d:Text="Notes" Text="{Binding Notes, StringFormat='Notes: {0}'}" TextWrapping="Wrap"/>
                 </StackPanel>
-
+                <!-- Status and Buttons-->
                 <StackPanel Margin="0" Width="75">
                     <TextBlock Text="{Binding Status}" HorizontalAlignment="Center" FontWeight="Bold" Margin="0,0,0,2"/>
-                    <Button Content="Email" Command="{Binding EmailCommand}" Margin="1"/>
+                    <!--<Button Content="Email" Command="{Binding EmailCommand}" Margin="1"/>-->
                     <Button Content="Edit" Command="{Binding EditCommand}" Margin="1"/>
                     <Button Content="Delete" Command="{Binding DeleteCommand}" Margin="1"/>
                 </StackPanel>
