@@ -7,7 +7,8 @@
         mc:Ignorable="d" Title="ITC Data Request Tracker"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ThreeDBorderWindow"
-        d:Height="600" d:Width="1000" Height="850" Width="1050">
+        SizeToContent="Width"
+        d:Height="600" d:Width="Auto" Height="850" Width="Auto">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </Window.Resources>
@@ -25,10 +26,12 @@
             <MenuItem Header="Request Forms..." Command="{Binding GoToRequestFolderCommand}"/>
         </Menu>
 
-        <Grid>
+        <Grid Width="{Binding TotalWidth}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="515"></ColumnDefinition>
+                <ColumnDefinition Width="515"></ColumnDefinition>
+                <ColumnDefinition Width="300"></ColumnDefinition>
+                <ColumnDefinition Width="{Binding CoreStaffWidth}"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"></RowDefinition>
@@ -37,7 +40,7 @@
             </Grid.RowDefinitions>
 
             <DockPanel  >
-                <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30"/>
+                <TextBlock Text="ITC Data Request Tracker" FontWeight="Bold" FontSize="30" Margin="3"/>
             </DockPanel>
 
             <!-- Button menu -->
@@ -87,19 +90,83 @@
                     </Border>
                 </Popup>
             </DockPanel>
+            
             <!-- Request List -->
-            <ListBox Grid.Row="1" Grid.ColumnSpan="2" ItemsSource="{Binding DisplayedRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+            <ListBox Grid.Row="1" Width="Auto" Grid.ColumnSpan="2" ItemsSource="{Binding DisplayedRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <local:RequestItemView></local:RequestItemView>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <!-- Bottom row info -->
-            <DockPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="5" >
-                <TextBlock Text="ITC Project 2026"  HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="18"/>
-                <TextBlock d:Text="Total Requests: 500" Text="{Binding RequestCount, StringFormat='Total Requests: {0}'}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="18"/>
+
+            <Button Grid.Row="0" Grid.Column="2" Margin="5" Width="80" HorizontalAlignment="Right" Command="{Binding ShowCoreStaffCommand}">
+                 <TextBlock Text="Core/Staff" FontSize="10" TextWrapping="Wrap" />
+            </Button> 
+
+            <DockPanel Grid.Row="1" Grid.Column="2" Margin="5,0,5,0" Height="Auto">
+                <!-- Upcoming expiries -->
+                <TextBlock Text="Upcoming Expirations" FontWeight="Bold" FontSize="18" Margin="0,0,0,3" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+                <ListBox DockPanel.Dock="Top" MaxHeight="300" ItemsSource="{Binding NearExpiredRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Requester.FullName}" Width="100" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>
+                                <Button Content="Send Email" Command="{Binding Path=DataContext.CreateReminderEmailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" CommandParameter="{Binding }"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <!-- already expired -->
+                <TextBlock DockPanel.Dock="Top" Text="Expired Requests" FontWeight="Bold" FontSize="18" Margin="0,3,0,3" HorizontalAlignment="Center"/>
+                <ListBox DockPanel.Dock="Top" ItemsSource="{Binding ExpiredRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Requester.FullName}" Width="100" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>
+                                <Button Content="Send Email" Command="{Binding Path=DataContext.CreateExpiredEmailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" CommandParameter="{Binding }"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </DockPanel>
+
+            <DockPanel Grid.Row="1" Grid.Column="3" Margin="5,0,5,0" Height="Auto">
+                <TextBlock DockPanel.Dock="Top" Text="ITC Core" FontWeight="Bold" FontSize="18" Margin="0,0,0,3" HorizontalAlignment="Center"/>
+                <ListBox DockPanel.Dock="Top" Height="300" ItemsSource="{Binding CoreRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Requester.FullName}" Width="100" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>
+                                <!--<Button Content="Send Email" Command="{Binding Path=DataContext.CreateExpiredEmailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" CommandParameter="{Binding }"/>-->
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <TextBlock DockPanel.Dock="Top" Text="ITC Staff" FontWeight="Bold" FontSize="18" Margin="0,3,0,3" HorizontalAlignment="Center"/>
+                <ListBox DockPanel.Dock="Top" ItemsSource="{Binding StaffRequests}"  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Requester.FullName}" Width="100" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>
+                                <!--<Button Content="Send Email" Command="{Binding Path=DataContext.CreateExpiredEmailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" CommandParameter="{Binding }"/>-->
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+            
+            <!-- Bottom row info -->
+            <TextBlock Grid.Row="2" Text="ITC Project 2026"  HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="18"/>
+            <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5" >
+                <TextBlock d:Text="Total Requests: 500" Text="{Binding RequestCount, StringFormat='Total Requests: {0}'}" HorizontalAlignment="Right" VerticalAlignment="Top" FontSize="18"/>
+                <TextBlock d:Text="Active: 100, Expired: 50, Completed: 350" Text="{Binding StatusSummary}"  HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+            </StackPanel>
         </Grid>
     </DockPanel>
 </Window>
