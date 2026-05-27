@@ -33,6 +33,18 @@ namespace RequestApp.ViewModels
         [NotifyPropertyChangedFor(nameof(IsFiltered))]
         private ObservableCollection<RequestItemViewModel> displayedRequests;
 
+        [ObservableProperty]
+        private ObservableCollection<Request> nearExpiredRequests;
+
+        [ObservableProperty]
+        private ObservableCollection<Request> expiredRequests;
+
+        [ObservableProperty]
+        private ObservableCollection<Request> coreRequests;
+
+        [ObservableProperty]
+        private ObservableCollection<Request> staffRequests;
+
         public ObservableCollection<Requester> Names { get; set; } = [];
         public ObservableCollection<ITCDataSet> Datasets { get; set; } = [];
 
@@ -53,6 +65,47 @@ namespace RequestApp.ViewModels
 
         [ObservableProperty]
         private string selectedSort;
+
+        public string StatusSummary
+        {
+            get
+            {
+                int active = 0;
+                int expired = 0;
+                int completed = 0;
+                int reminded = 0;
+
+                foreach (var request in Requests)
+                {
+                    switch (request.Status)
+                    {
+                        case "Active":
+                            active++;
+                            break;
+
+                        case "Expired":
+                            expired++;
+                            break;
+
+                        case "Completed":
+                            completed++;
+                            break;
+                        case "Reminded":
+                            reminded++;
+                            break;
+                    }
+                }
+
+                return $"Active: {active}, Expired: {expired}, Reminded: {reminded}, Completed: {completed}";
+            }
+        }
+
+        [ObservableProperty]
+        private int coreStaffWidth = 0;
+
+        [ObservableProperty]
+        private int totalWidth = 1340;
+        private int baseWidth = 1340;
 
         public MainViewModel(IDataRequestService requestService, IDialogService dialogService)
         {
@@ -100,6 +153,16 @@ namespace RequestApp.ViewModels
             Datasets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
             
             DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests);
+
+            NearExpiredRequests = new ObservableCollection<Request>(requests.Where(x => x.ExpiryDate != null && x.ExpiryDate.Value <= DateTime.Now.AddDays(30) && x.ExpiryDate.Value > DateTime.Now)
+                                        .OrderByDescending(x => x.ExpiryDate));
+
+            ExpiredRequests = new ObservableCollection<Request>(requests.Where(x => x.ExpiryDate != null && x.ExpiryDate.Value <= DateTime.Now)
+                                        .OrderByDescending(x => x.ExpiryDate));
+
+            CoreRequests = new ObservableCollection<Request>(requests.Where(x => x.Requester != null && x.Requester.CoreMember));
+            StaffRequests = new ObservableCollection<Request>(requests.Where(x => x.Requester != null && x.Requester.StaffMember));
+
         }
 
         partial void OnSelectedDataSetChanged(ITCDataSet oldValue, ITCDataSet newValue)
@@ -129,7 +192,7 @@ namespace RequestApp.ViewModels
         {
             var request = new Request
             {
-                Status = "New",
+                Status = "Active",
                 Requester = new Requester()
             };
 
@@ -243,6 +306,61 @@ namespace RequestApp.ViewModels
         }
 
         [RelayCommand]
+        private void CreateReminderEmail(Request request)
+        {
+            string recipients = request.Requester.Email;
+            string subject = "ITC Data Access Upcoming Expiry Notification";
+            string body = emailReminder.Replace("{firstname}", request.Requester.FirstName);
+
+            if (request.DataSets.Count > 0)
+                body = body.Replace("{datasets}", string.Join(", ", request.DataSets.Select(x => x.Name)) + " data sets");
+            else
+                body = body.Replace("{datasets}", "ITC data you requested");
+            
+
+            var outlook = new Outlook.Application();
+            Outlook.MailItem mail = (Outlook.MailItem)outlook.CreateItem(Outlook.OlItemType.olMailItem);
+            
+            mail.To = recipients;
+            mail.Subject = subject;
+            mail.Body = body;
+            mail.HTMLBody = body;
+            mail.Display();
+        }
+
+        [RelayCommand]
+        private void CreateExpiredEmail(Request request)
+        {
+            string recipients = request.Requester.Email;
+            string subject = "ITC Data Access Expiry Notification";
+            string body = emailExpired.Replace("{firstname}", request.Requester.FirstName);
+
+            if (request.DataSets.Count > 0)
+                body = body.Replace("{datasets}", string.Join(", ", request.DataSets.Select(x => x.Name)) + " data sets");
+            else
+                body = body.Replace("{datasets}", "ITC data you requested");
+
+
+            var outlook = new Outlook.Application();
+            Outlook.MailItem mail = (Outlook.MailItem)outlook.CreateItem(Outlook.OlItemType.olMailItem);
+
+            mail.To = recipients;
+            mail.Subject = subject;
+            mail.Body = body;
+            mail.HTMLBody = body;
+            mail.Display();
+        }
+
+        [RelayCommand]
+        private void ShowCoreStaff()
+        {
+            CoreStaffWidth = CoreStaffWidth == 0 ? 200 : 0;
+            TotalWidth = baseWidth + CoreStaffWidth;
+            
+
+        }
+
+        [RelayCommand]
         private void GoToRequestFolder()
         {
             Process.Start("explorer.exe", RequestFormFolder);
@@ -254,78 +372,100 @@ namespace RequestApp.ViewModels
             Application.Current.Shutdown();
         }
 
-        string emailNewUser = @"Hi FIRST NAME, 
-Your access to the ITC 4-Country Waves 8-10 data has now expired.  If you have completed your analyses with this data, please let me know so that I can update our data access records and please follow the instructions below for data destruction. If you need to extend your access to this data for the same analyses (for up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).   
-If you are renewing your data access, please recall these important considerations for analyzing the data:
-1)	To better understand the derived variables and the weights variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.
-2)	For other data analysis help, please go to File Station -> Statistical Corner -> Data Analysis Help Files.
-3)	Data must be interpreted by referencing the most recent version of the ITC surveys.  
-•	The variable labels in the datasets, ON THEIR OWN, are not adequate for data interpretation. For various reasons, labels don’t always capture wording differences over waves and countries.
-•	The ITC surveys can be downloaded at http://itcproject.org/surveys.  
+        string emailNewUser = @"Hi {firstname}, 
+            Your access to the ITC 4-Country Waves 8-10 data has now expired.  If you have completed your analyses with this data, please let me know so that I can update our data access records and please follow the instructions below for data destruction. If you need to extend your access to this data for the same analyses (for up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).   
+            If you are renewing your data access, please recall these important considerations for analyzing the data:
+            1)	To better understand the derived variables and the weights variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.
+            2)	For other data analysis help, please go to File Station -> Statistical Corner -> Data Analysis Help Files.
+            3)	Data must be interpreted by referencing the most recent version of the ITC surveys.  
+            •	The variable labels in the datasets, ON THEIR OWN, are not adequate for data interpretation. For various reasons, labels don’t always capture wording differences over waves and countries.
+            •	The ITC surveys can be downloaded at http://itcproject.org/surveys.  
 
-If you do not need to extend your access:
-1)    Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
-2)    Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
-3)    Please send a confirmation email to itcdata@uwaterloo.ca once this is done.
+            If you do not need to extend your access:
+            1)    Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
+            2)    Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
+            3)    Please send a confirmation email to itcdata@uwaterloo.ca once this is done.
 
-If you have any questions, please let me know.
-Thanks,
-YOUR NAME
-";
+            If you have any questions, please let me know.
+            Thanks,
+            YOUR NAME
+            ";
+        
+        string emailReminder= @"Hi {firstname},
+            <br>Your access to the {datasets} is about to expire.  
+            <br>If you have now completed your analyses with this data and no longer need the access, please let me know so that I can update our records, and please follow the instructions below for data destruction. If you would like to extend your access for the same analyses (up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).
+            <br>If you do not need to extend your access:
+            <br>1)  Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
+            <br>2)  Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
+            <br>3)  Please send a confirmation email to me, or to itcdata@uwaterloo.ca once this is done.
+            <br>
+            <br>Thanks,
+            <br>YOUR NAME";
 
-        string emailRegularRenewal = @"Hi FIRST NAME,
-Your access to the ITC Netherlands (Waves 7-8) and United Kingdom (Waves 9-10) for your proposal on socioeconomic differences in impact of smoking cessation medications has expired again, as it has been one year since you last completed the forms for data access. 
-If you have now completed your analyses with this data and no longer need the access, please let me know so that I can update our records, and please follow the instructions below for data destruction. If you would like to extend your access for the same analyses (up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).
-If you do not need to extend your access:
-1)  Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
-2)  Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
-3)  Please send a confirmation email to me, or to itcdata@uwaterloo.ca once this is done.
+        string emailExpired = @"Hi {firstname},
+            <br>Your access to the {datasets} has expired. 
+            <br>If you have now completed your analyses with this data and no longer need the access, please let me know so that I can update our records, and please follow the instructions below for data destruction. If you would like to extend your access for the same analyses (up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).
+            <br>If you do not need to extend your access:
+            <br>1)  Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
+            <br>2)  Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
+            <br>3)  Please send a confirmation email to me, or to itcdata@uwaterloo.ca once this is done.
+            <br>
+            <br>Thanks,
+            <br>YOUR NAME";
+
+        string emailRegularRenewal = @"Hi {firstname},
+            Your access to the {datasets} for your proposal on socioeconomic differences in impact of smoking cessation medications has expired again, as it has been one year since you last completed the forms for data access. 
+            If you have now completed your analyses with this data and no longer need the access, please let me know so that I can update our records, and please follow the instructions below for data destruction. If you would like to extend your access for the same analyses (up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).
+            If you do not need to extend your access:
+            1)  Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
+            2)  Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
+            3)  Please send a confirmation email to me, or to itcdata@uwaterloo.ca once this is done.
  
-Thanks,
-YOUR NAME
-";
+            Thanks,
+            YOUR NAME
+            ";
 
-        string emailNewUserFollowup = @"Hi FIRST NAME, 
-I am following up about your access to the TCP India Wave 1-2 data subset that was sent to you in November. You had indicated that the completion date would be Feb 20, 2019, so if you have now completed your analyses with this data, please let me know so that I can update our records and please follow the instructions below for data destruction.  If you need a bit longer to complete your analyses, please let me know as well and we may be able to just extend your current access for a few more months.   Or, if you need a longer time (up to 12 months), we would ask you to complete the data access renewal process by sending in new forms (attached). 
-If you do not need to extend your access:
-1)    Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
-2)    Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
-3)    Please send a confirmation email to me, or to itcdata@uwaterloo.ca once this is done.
+        string emailNewUserFollowup = @"Hi {firstname}, 
+            I am following up about your access to the TCP India Wave 1-2 data subset that was sent to you in November. You had indicated that the completion date would be Feb 20, 2019, so if you have now completed your analyses with this data, please let me know so that I can update our records and please follow the instructions below for data destruction.  If you need a bit longer to complete your analyses, please let me know as well and we may be able to just extend your current access for a few more months.   Or, if you need a longer time (up to 12 months), we would ask you to complete the data access renewal process by sending in new forms (attached). 
+            If you do not need to extend your access:
+            1)    Please shred the datasets from your computer (per our data policy in line with our ethics requirements). 
+            2)    Please ensure that the data are completely destroyed by using software that you know will shred the data, such as PermaDelete (https://github.com/encrypt0r/permadelete). A list of other free programs for Windows can be found here: https://www.lifewire.com/free-file-shredder-software-programs-2619149, and a list of free programs for MacOS can be found here: https://news.macgasm.net/reviews/best-free-file-shredders-mac/
+            3)    Please send a confirmation email to me, or to itcdata@uwaterloo.ca once this is done.
 
-Thanks,
-YOUR NAME
-";
+            Thanks,
+            YOUR NAME
+            ";
 
         string datasetUpdateEmail = @"Hi everyone,
-The ITC [DATASET NAME(S)] have just been updated again on the ITC website the Wave Waterloo. This update includes the following changes:
+            The ITC [DATASET NAME(S)] have just been updated again on the ITC website the Wave Waterloo. This update includes the following changes:
 
-[ADD CHANGES HERE]
+            [ADD CHANGES HERE]
 
-Current users of the ITC 4CE data should download the revised datasets by following the instructions below: 
+            Current users of the ITC 4CE data should download the revised datasets by following the instructions below: 
 
-1)	Log in to the website https://thewave.uwaterloo.ca:8443/ 
-2)	Go to the [DATASET NAME] data folder: click on ‘File Station’ -> ‘Released Datasets’ -> ‘[PROJECT NAME]’
-3)	In that folder you will see 3 sub-folders: SAS, SPSS or Stata. Choose your statistical software format, and go into that folder. 
-4)	The data files will be saved as zip files inside these folders. The 4CV1 data files will begin with ‘itc4v’ and include both a ‘core’ file and the main data file (as well as a ‘formats’ file for the SAS version).  To download the files:
-a.	Double click on the file,
-b.	Right-click on the file and select Download, or
-c.	Highlight the file, then go to Actions -> Download
-5)	Once you have downloaded the data files, you will need to decrypt them. Open the files in a file decompression software and enter the decryption password when prompted.  
-6)	Once you’ve entered the password, the data files should be decrypted, and you should now be able to use them.
+            1)	Log in to the website https://thewave.uwaterloo.ca:8443/ 
+            2)	Go to the [DATASET NAME] data folder: click on ‘File Station’ -> ‘Released Datasets’ -> ‘[PROJECT NAME]’
+            3)	In that folder you will see 3 sub-folders: SAS, SPSS or Stata. Choose your statistical software format, and go into that folder. 
+            4)	The data files will be saved as zip files inside these folders. The 4CV1 data files will begin with ‘itc4v’ and include both a ‘core’ file and the main data file (as well as a ‘formats’ file for the SAS version).  To download the files:
+            a.	Double click on the file,
+            b.	Right-click on the file and select Download, or
+            c.	Highlight the file, then go to Actions -> Download
+            5)	Once you have downloaded the data files, you will need to decrypt them. Open the files in a file decompression software and enter the decryption password when prompted.  
+            6)	Once you’ve entered the password, the data files should be decrypted, and you should now be able to use them.
 
-Other important considerations for analyzing the data:
-1)	To better understand the derived variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.  
-2)	To better understand the weights in the datasets, please read the “4CV1 – Sampling Weights” document – click File Station -> Released Datasets -> 4-Country-V.
-3)	To better understand the variable names and dataset naming convention, please read the “4CV1 Release Notes” document – click File Station -> Released Datasets -> 4-Country-V. 
-4)	For other data analysis help, please go to File Station -> Statistical Corner -> Data Analysis Help Files.
-5)	Data must be interpreted by referencing the most recent version of the ITC 4-Country surveys.  
-•	The variable labels in the datasets, ON THEIR OWN, are not adequate for data interpretation. For various reasons, labels don’t always capture wording differences over waves and countries.
-•	The updated ITC 4CV1 surveys can be downloaded at https://itcproject.org/surveys/.  
+            Other important considerations for analyzing the data:
+            1)	To better understand the derived variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.  
+            2)	To better understand the weights in the datasets, please read the “4CV1 – Sampling Weights” document – click File Station -> Released Datasets -> 4-Country-V.
+            3)	To better understand the variable names and dataset naming convention, please read the “4CV1 Release Notes” document – click File Station -> Released Datasets -> 4-Country-V. 
+            4)	For other data analysis help, please go to File Station -> Statistical Corner -> Data Analysis Help Files.
+            5)	Data must be interpreted by referencing the most recent version of the ITC 4-Country surveys.  
+            •	The variable labels in the datasets, ON THEIR OWN, are not adequate for data interpretation. For various reasons, labels don’t always capture wording differences over waves and countries.
+            •	The updated ITC 4CV1 surveys can be downloaded at https://itcproject.org/surveys/.  
 
-Should you have any questions related to the datasets or request a password, please feel free to contact itcdata@uwaterloo.ca.
-Thanks,
-YOUR NAME
-";
+            Should you have any questions related to the datasets or request a password, please feel free to contact itcdata@uwaterloo.ca.
+            Thanks,
+            YOUR NAME
+            ";
 
 
     }
