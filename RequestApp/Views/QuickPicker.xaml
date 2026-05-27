@@ -5,13 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RequestApp.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="120" d:DesignWidth="150" Height="120" Width="150">
+             d:DesignHeight="120" d:DesignWidth="150" Height="130" Width="150">
     <Grid>
         <StackPanel>
             <TextBlock Text="{Binding Label}" d:Text="Picker Label" HorizontalAlignment="Center"/>
             <ComboBox  Margin="0,5,0,0" Width="100" ItemsSource="{Binding ItemList}" SelectedItem="{Binding SelectedItem}"/>
-            <Button Margin="0,10,0,2" Content="OK" Height="25" Width="100" Command="{Binding OKCommand}"/>
-            <Button Content="Cancel" Height="25" Width="100" Command="{Binding CancelCommand}"/>
+            <Button Margin="0,10,0,2" Content="OK" Height="30" Width="100" Command="{Binding OKCommand}"/>
+            <Button Content="Cancel" Height="30" Width="100" Command="{Binding CancelCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>
