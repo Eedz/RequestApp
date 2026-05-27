@@ -32,10 +32,13 @@ namespace RequestApp
         private IDbConnection CreateConnection()
             => new SqlConnection(_connectionString);
 
-        // -------------------------
-        // CREATE
-        // -------------------------
-
+        /// <summary>
+        /// Create Request with related datasets and formats in a single transaction to ensure data integrity. 
+        /// If any part of the process fails, the entire transaction will be rolled back, preventing partial data from being saved. 
+        /// This approach ensures that the Request and its associated datasets and formats are always in sync in the database.
+        /// </summary>
+        /// <param name="request">The request object to be created.</param>
+        /// <returns>True if the request was successfully created; otherwise, false.</returns>
         public async Task<bool> CreateNewRequest(Request request)
         {
             using var connection = CreateConnection();
@@ -101,15 +104,17 @@ namespace RequestApp
                 Partial = request.PartialDataSets
             }, transaction);
 
-            // assign ID back to object
-            request.ID =(int)requestId;
+            // get new ID
+            request.ID = (int)requestId;
 
             return requestId > 0;
         }
 
-        // -------------------------
-        // UPDATE
-        // -------------------------
+        /// <summary>
+        /// Update Request.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<bool> UpdateRequest(Request request)
         {
             using var connection = CreateConnection();
@@ -288,9 +293,11 @@ namespace RequestApp
             }
         }
 
-        // -------------------------
-        // DELETE
-        // -------------------------
+        /// <summary>
+        /// Delete Request.
+        /// </summary>
+        /// <param name="requestId">The ID of the request to delete.</param>
+        /// <returns>True if the request was deleted successfully; otherwise, false.</returns>
         public async Task<bool> DeleteRequest(int requestId)
         {
             using var connection = CreateConnection();
@@ -318,7 +325,9 @@ namespace RequestApp
                 Email,
                 CountryTeam,
                 WebsiteMember,
-                DataUser
+                DataUser,
+                StaffMember,
+                CoreMember
             FROM DataRequests.Requesters
             ORDER BY LastName, FirstName";
 
@@ -367,7 +376,9 @@ namespace RequestApp
                 req.Email,
                 req.CountryTeam,
                 req.WebsiteMember,
-                req.DataUser
+                req.DataUser,
+                req.StaffMember,
+                req.CoreMember
             FROM DataRequests.Requests r
             INNER JOIN DataRequests.Requesters req ON r.RequesterID = req.ID
             ORDER BY r.ID";
