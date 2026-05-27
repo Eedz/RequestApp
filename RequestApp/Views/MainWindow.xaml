@@ -21,7 +21,6 @@
             </MenuItem>
             <MenuItem Header="Emails">
                 <MenuItem Header="Data set Update" Command="{Binding UpdateDataSetCommand}"/>
-                <MenuItem Header="Expired"/>
             </MenuItem>
             <MenuItem Header="Request Forms..." Command="{Binding GoToRequestFolderCommand}"/>
         </Menu>
