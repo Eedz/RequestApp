@@ -40,10 +40,10 @@ namespace RequestApp.ViewModels
         private ObservableCollection<Request> expiredRequests;
 
         [ObservableProperty]
-        private ObservableCollection<Request> coreRequests;
+        private ObservableCollection<Requester> coreRequests;
 
         [ObservableProperty]
-        private ObservableCollection<Request> staffRequests;
+        private ObservableCollection<Requester> staffRequests;
 
         public ObservableCollection<Requester> Names { get; set; } = [];
         public ObservableCollection<ITCDataSet> Datasets { get; set; } = [];
@@ -160,8 +160,10 @@ namespace RequestApp.ViewModels
             ExpiredRequests = new ObservableCollection<Request>(requests.Where(x => x.ExpiryDate != null && x.ExpiryDate.Value <= DateTime.Now)
                                         .OrderByDescending(x => x.ExpiryDate));
 
-            CoreRequests = new ObservableCollection<Request>(requests.Where(x => x.Requester != null && x.Requester.CoreMember));
-            StaffRequests = new ObservableCollection<Request>(requests.Where(x => x.Requester != null && x.Requester.StaffMember));
+            var requesters = await _requestService.GetRequesters();
+
+            CoreRequests = new ObservableCollection<Requester>(requesters.Where(x => x.CoreMember));
+            StaffRequests = new ObservableCollection<Requester>(requesters.Where(x => x.StaffMember));
 
         }
 
