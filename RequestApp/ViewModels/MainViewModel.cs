@@ -307,6 +307,7 @@ namespace RequestApp.ViewModels
             mail.BCC = recipients;
             mail.Subject = subject;
             mail.Body = body;
+            mail.HTMLBody = body;
             mail.Display();
         }
 
@@ -377,7 +378,7 @@ namespace RequestApp.ViewModels
             Application.Current.Shutdown();
         }
 
-        string emailNewUser = @"Hi {firstname}, 
+        string emailNewUser = @"Hi <span style=""background-color:#ffff00;"">{firstname}</span>, 
             Your access to the ITC 4-Country Waves 8-10 data has now expired.  If you have completed your analyses with this data, please let me know so that I can update our data access records and please follow the instructions below for data destruction. If you need to extend your access to this data for the same analyses (for up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).   
             If you are renewing your data access, please recall these important considerations for analyzing the data:
             1)	To better understand the derived variables and the weights variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.
@@ -396,7 +397,7 @@ namespace RequestApp.ViewModels
             YOUR NAME
             ";
         
-        string emailReminder= @"Hi {firstname},
+        string emailReminder= @"Hi <span style=""background-color:#ffff00;"">{firstname}</span>,
             <br>Your access to the {datasets} is about to expire.  
             <br>If you have now completed your analyses with this data and no longer need the access, please let me know so that I can update our records, and please follow the instructions below for data destruction. If you would like to extend your access for the same analyses (up to another 12 months), please complete and return the signed Data Usage Agreement and Disclosure of Competing Interests forms (attached).
             <br>If you do not need to extend your access:
@@ -442,34 +443,40 @@ namespace RequestApp.ViewModels
             ";
 
         string datasetUpdateEmail = @"Hi everyone,
-            The ITC [DATASET NAME(S)] have just been updated again on the ITC website the Wave Waterloo. This update includes the following changes:
-
-            [ADD CHANGES HERE]
-
-            Current users of the ITC 4CE data should download the revised datasets by following the instructions below: 
-
-            1)	Log in to the website https://thewave.uwaterloo.ca:8443/ 
-            2)	Go to the [DATASET NAME] data folder: click on ‘File Station’ -> ‘Released Datasets’ -> ‘[PROJECT NAME]’
-            3)	In that folder you will see 3 sub-folders: SAS, SPSS or Stata. Choose your statistical software format, and go into that folder. 
-            4)	The data files will be saved as zip files inside these folders. The 4CV1 data files will begin with ‘itc4v’ and include both a ‘core’ file and the main data file (as well as a ‘formats’ file for the SAS version).  To download the files:
-            a.	Double click on the file,
-            b.	Right-click on the file and select Download, or
-            c.	Highlight the file, then go to Actions -> Download
-            5)	Once you have downloaded the data files, you will need to decrypt them. Open the files in a file decompression software and enter the decryption password when prompted.  
-            6)	Once you’ve entered the password, the data files should be decrypted, and you should now be able to use them.
-
-            Other important considerations for analyzing the data:
-            1)	To better understand the derived variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.  
-            2)	To better understand the weights in the datasets, please read the “4CV1 – Sampling Weights” document – click File Station -> Released Datasets -> 4-Country-V.
-            3)	To better understand the variable names and dataset naming convention, please read the “4CV1 Release Notes” document – click File Station -> Released Datasets -> 4-Country-V. 
-            4)	For other data analysis help, please go to File Station -> Statistical Corner -> Data Analysis Help Files.
-            5)	Data must be interpreted by referencing the most recent version of the ITC 4-Country surveys.  
-            •	The variable labels in the datasets, ON THEIR OWN, are not adequate for data interpretation. For various reasons, labels don’t always capture wording differences over waves and countries.
-            •	The updated ITC 4CV1 surveys can be downloaded at https://itcproject.org/surveys/.  
-
-            Should you have any questions related to the datasets or request a password, please feel free to contact itcdata@uwaterloo.ca.
-            Thanks,
-            YOUR NAME
+            <br>The ITC <span style=""background-color:#ffff00;"">[DATASET NAME(S)]</span> have just been updated again on the ITC website the Wave Waterloo. This update includes the following changes:
+            <br>
+            <br><span style=""background-color:#ffff00;"">[ADD CHANGES HERE]</span>
+            <br>
+            <br>Current users of the ITC <span style=""background-color:#ffff00;"">[DATASET]</span> data should download the revised datasets by following the instructions below: 
+            <br>    
+            <ol>
+            <li>Log in to the website https://thewave.uwaterloo.ca:8443/ </li>
+            <li>Go to the <span style=""background-color:#ffff00;"">[DATASET NAME]</span> data folder: click on ‘File Station’ -> ‘Released Datasets’ -> <span style=""background-color:#ffff00;"">‘[PROJECT NAME]’</span></li>
+            <li>In that folder you will see 3 sub-folders: SAS, SPSS or Stata. Choose your statistical software format, and go into that folder. </li>
+            <li>The data files will be saved as zip files inside these folders. The <span style=""background-color:#ffff00;"">[DATASET]</span> data files will begin with <span style=""background-color:#ffff00;"">‘itc4v’</span> and include both a ‘core’ file and the main data file (as well as a ‘formats’ file for the SAS version).  To download the files:</li>
+                <ol type=""a"">
+                <li>Double click on the file,</li>
+                <li>Right-click on the file and select Download, or </li>
+                <li>Highlight the file, then go to Actions -> Download </li>
+                </ol>
+            <li>Once you have downloaded the data files, you will need to decrypt them. Open the files in a file decompression software and enter the decryption password when prompted.  </li>
+            <li>Once you’ve entered the password, the data files should be decrypted, and you should now be able to use them.</li>
+            </ol>
+            <br>Other important considerations for analyzing the data:
+            <ol>
+            <li>To better understand the derived variables in the datasets, please read the “Derived Variables Document.pdf” – click File Station -> Released Datasets -> Instructions.  </li>
+            <li>To better understand the weights in the datasets, please read the <span style=""background-color:#ffff00;"">“Sampling Weights”</span> document – click File Station -> Released Datasets -> <span style=""background-color:#ffff00;"">4-Country-V</span>.</li>
+            <li>To better understand the variable names and dataset naming convention, please read the <span style=""background-color:#ffff00;"">“Release Notes”</span> document – click File Station -> Released Datasets -> <span style=""background-color:#ffff00;"">4-Country-V. </span></li>
+            <li>For other data analysis help, please go to File Station -> Statistical Corner -> Data Analysis Help Files.</li>
+            <li>Data must be interpreted by referencing the most recent version of the ITC <span style=""background-color:#ffff00;"">4-Country surveys</span>.  </li>
+                <ul>
+                    <li>The variable labels in the datasets, ON THEIR OWN, are not adequate for data interpretation. For various reasons, labels don’t always capture wording differences over waves and countries.</li>
+                    <li>The updated ITC <span style=""background-color:#ffff00;"">[DATASET]</span> surveys can be downloaded at https://itcproject.org/surveys/.  </li>
+                </ul>
+            </ol>
+            <br>Should you have any questions related to the datasets or request a password, please feel free to contact itcdata@uwaterloo.ca.
+            <br>Thanks,
+            <br>YOUR NAME
             ";
 
 
