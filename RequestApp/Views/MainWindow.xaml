@@ -138,8 +138,8 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Requester.FullName}" Width="100" Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>
+                                <TextBlock Text="{Binding FullName}" Width="100" Margin="0,0,4,0"/>
+                                <!--<TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>-->
                                 <!--<Button Content="Send Email" Command="{Binding Path=DataContext.CreateExpiredEmailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" CommandParameter="{Binding }"/>-->
                             </StackPanel>
                         </DataTemplate>
@@ -151,8 +151,8 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Requester.FullName}" Width="100" Margin="0,0,4,0"/>
-                                <TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>
+                                <TextBlock Text="{Binding FullName}" Width="100" Margin="0,0,4,0"/>
+                                <!--<TextBlock Text="{Binding ExpiryDate, StringFormat=d}" Width="75"/>-->
                                 <!--<Button Content="Send Email" Command="{Binding Path=DataContext.CreateExpiredEmailCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" CommandParameter="{Binding }"/>-->
                             </StackPanel>
                         </DataTemplate>
