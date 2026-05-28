@@ -58,7 +58,7 @@ namespace RequestApp.ViewModels
 
         public bool IsFiltered => DisplayedRequests.Count != Requests.Count;
 
-        public List<string> SortOptions { get; } = ["Expiry Date", "Requester"];
+        public List<string> SortOptions { get; } = ["Expiry Date", "Requester", "Status"];
 
         [ObservableProperty]
         private bool showSortPopup;
@@ -266,6 +266,9 @@ namespace RequestApp.ViewModels
                     break;
                 case "Requester":
                     DisplayedRequests = new ObservableCollection<RequestItemViewModel>(DisplayedRequests.OrderBy(x => x.Requester.LastName));
+                    break;
+                case "Status":  
+                    DisplayedRequests = new ObservableCollection<RequestItemViewModel>(DisplayedRequests.OrderBy(x => x.Status));
                     break;
             }
             ShowSortPopup = false;
