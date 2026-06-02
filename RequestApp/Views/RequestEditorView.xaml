@@ -5,9 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RequestApp.Models"
              mc:Ignorable="d" 
-             d:DesignHeight="350" d:DesignWidth="800" Background="{StaticResource AppBackgroundBrush}">
+             d:DesignHeight="350" d:DesignWidth="1000" Background="{StaticResource AppBackgroundBrush}">
     <Grid Margin="3">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230"/>
             <ColumnDefinition Width="115"/>
             <ColumnDefinition Width="300"/>
             <ColumnDefinition Width="100"/>
@@ -15,48 +16,48 @@
             <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="100"/>
         </Grid.ColumnDefinitions>
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="100"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
-
-        <StackPanel>    </StackPanel>
-
-        <TextBlock Text="Requester" Grid.Row="0" Grid.Column="0" FontWeight="Bold"/>
-
-        <DockPanel Grid.Column="1" >
-            <TextBox x:Name="RequesterTextBox"  Text="{Binding Requester.FullName, Mode=OneWay}" d:Text="FirstName LastName" Width="250" FontSize="18" DockPanel.Dock="Left"/>
-            <Button Content="V" Command="{Binding ShowNamesCommand}"/>
-           
-        </DockPanel>
-        <Popup IsOpen="{Binding DropDownNames}" PlacementTarget="{Binding ElementName=RequesterTextBox}">
-            <ListBox Height="200" Width="300" ItemsSource="{Binding RequesterNames}" SelectedItem="{Binding Requester, Mode=TwoWay}">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding ReversedFullName}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Popup>
         
-        <TextBlock Text="Authorized By" Grid.Row="1" Grid.Column="0" FontWeight="Bold"/>
-        <TextBox Text="{Binding AuthorizedBy}" Grid.Column="1" Grid.Row="1"/>
-        <TextBlock Text="Expiry Date: " Grid.Row="2" Grid.Column="0" FontWeight="Bold"/>
-        <DatePicker SelectedDate="{Binding ExpiryDate}" Grid.Column="1" Grid.Row="2"/>
-        <TextBlock Text="Last Signed Date: " Grid.Row="3" Grid.Column="0" FontWeight="Bold"/>
-        <DatePicker SelectedDate="{Binding LatestSigning}" Grid.Column="1" Grid.Row="3"/>
-        <TextBlock Text="Internal/External: " Grid.Row="4" Grid.Column="0" FontWeight="Bold"/>
-        <ComboBox ItemsSource="{Binding InternalExternalList}" SelectedItem="{Binding InternalExternal}" Grid.Column="1" Grid.Row="4"/>
+        <!-- Requester(s) -->
+        <TextBlock Text="Add Requester(s)" Grid.Row="0" Grid.Column="0" FontWeight="Bold"/>
 
+        <DockPanel Grid.Column="0" Grid.Row="1" Margin="3,0,3,0" >
+            <ComboBox ItemsSource="{Binding RequesterNames}" DisplayMemberPath="ReversedFullName" SelectedItem="{Binding SelectedRequester, Mode=TwoWay}" Width="150" DockPanel.Dock="Left" />
+            <Button Content="+" Command="{Binding AddRequesterCommand}" CommandParameter="{Binding SelectedRequester}" Width="35"/>
+        </DockPanel>
+        <ListBox  x:Name="RequestersListBox" Grid.Column="0" Grid.Row="2" Grid.RowSpan="8" MinHeight="200" ItemsSource="{Binding Requesters}" Margin="3" VerticalAlignment="Top">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="1" Height="32">
+                        <TextBlock Text="{Binding ReversedFullName}" Margin="2,2,10,2" VerticalAlignment="Center"/>
+                        <Button Content="X" VerticalContentAlignment="Top" Height="30" Command="{Binding DataContext.RemoveRequesterCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <!-- Other Data -->
+        <TextBlock Text="Authorized By: " Grid.Row="0" Grid.Column="1" FontWeight="Bold" Margin="3,0" HorizontalAlignment="Right"/>
+        <TextBox Text="{Binding AuthorizedBy}" Grid.Column="2" Grid.Row="0"/>
+        <TextBlock Text="Expiry Date: " Grid.Row="1" Grid.Column="1" FontWeight="Bold" Margin="3,0" HorizontalAlignment="Right"/>
+        <DatePicker SelectedDate="{Binding ExpiryDate}" Grid.Column="2" Grid.Row="1"/>
+        <TextBlock Text="Last Signed Date: " Grid.Row="2" Grid.Column="1" FontWeight="Bold" Margin="3,0" HorizontalAlignment="Right"/>
+        <DatePicker SelectedDate="{Binding LatestSigning}" Grid.Column="2" Grid.Row="2"/>
+        <TextBlock Text="Internal/External: " Grid.Row="3" Grid.Column="1" FontWeight="Bold" Margin="3,0" HorizontalAlignment="Right"   />
+        <ComboBox ItemsSource="{Binding InternalExternalList}" SelectedItem="{Binding InternalExternal}" Grid.Column="2" Grid.Row="3"/>
 
-        <TextBlock Text="Data Format:" Grid.Row="5" Grid.Column="0" FontWeight="Bold" Margin="3"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1">
+        <!-- Data Format -->
+        <TextBlock Text="Data Format: " Grid.Row="4" Grid.Column="1" FontWeight="Bold" Margin="3,0" HorizontalAlignment="Right"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="2">
             <CheckBox Content="SAS" IsChecked="{Binding DataFormatSAS}" Margin="3"/>
             <CheckBox Content="SPSS" IsChecked="{Binding DataFormatSPSS}" Margin="3"/>
             <CheckBox Content="STATA" IsChecked="{Binding DataFormatSTATA}" Margin="3"/>
@@ -64,19 +65,21 @@
             <TextBox Text="{Binding DataFormatOtherDescription}" Width="75" Margin="3" IsEnabled="{Binding DataFormatOther}"/>
         </StackPanel>
 
-        <TextBlock Text="Notes" Grid.Row="6" Grid.Column="0" FontWeight="Bold"/>
-        <TextBox Text="{Binding Notes}" Grid.Column="1" Grid.Row="6" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
-
-        <StackPanel Grid.Row="8" Grid.Column="1">
+        <TextBlock Text="Notes: " Grid.Row="5" Grid.Column="1" FontWeight="Bold" Margin="3,0" HorizontalAlignment="Right"/>
+        <TextBox Text="{Binding Notes}" Grid.Column="2" Grid.Row="5" Height="100" AcceptsReturn="True" TextWrapping="Wrap"/>
+    
+        <!-- Save/Cancel buttons -->
+        <StackPanel Grid.Row="6" Grid.Column="2">
             <Button Content="Save" Command="{Binding SaveCommand}" Margin="5"/>
             <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="5"/>
         </StackPanel>
-
-        <StackPanel Grid.Column="2" >
+        
+        
+        <!-- Data Sets -->
+        <StackPanel Grid.Column="3" >
             <TextBlock Text="Data Sets" FontWeight="Bold" HorizontalAlignment="Center"/>
-
         </StackPanel>
-        <ListBox  x:Name="DataSetsListBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding DataSets}" Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
+        <ListBox  x:Name="DataSetsListBox" Grid.Column="3" Grid.Row="1" Grid.RowSpan="5" ItemsSource="{Binding DataSets}" Margin="3,0,3,0" MinHeight="205" MaxHeight="225" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
@@ -86,19 +89,23 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <StackPanel Grid.Row="7" Grid.Column="2" Grid.ColumnSpan="2" Margin="2,0,3,0">
+        
+        <!-- Subset Data Set -->
+        <StackPanel Grid.Row="8" Grid.Column="3" Grid.ColumnSpan="2" Margin="2,0,3,0">
             <CheckBox   Width="75" HorizontalAlignment="Left" IsChecked="{Binding PartialDataSets}"/>
             <TextBlock  TextWrapping="Wrap" Text="Click here if any dataset is only partially requested (e.g. specific country or variables)"/>
         </StackPanel>
-        <Button Grid.Column="3" Grid.Row="1" Content="&lt;&lt;" Margin="0" VerticalContentAlignment="Center" Command="{Binding AddDataSetCommand}" CommandParameter="{Binding SelectedItem, ElementName=AvailableDataSetsListBox}"/>
-        <Button Grid.Column="3" Grid.Row="2" Content=">>" Margin="0" Command="{Binding RemoveDataSetCommand}" CommandParameter="{Binding SelectedItem, ElementName=DataSetsListBox}"/>
+        
+        <!-- Add/Remove Data Set buttons -->
+        <Button Grid.Column="4" Grid.Row="1" Content="&lt;&lt;" Margin="0" VerticalContentAlignment="Center" Command="{Binding AddDataSetCommand}" CommandParameter="{Binding SelectedItem, ElementName=AvailableDataSetsListBox}"/>
+        <Button Grid.Column="4" Grid.Row="2" Content=">>" Margin="0" Command="{Binding RemoveDataSetCommand}" CommandParameter="{Binding SelectedItem, ElementName=DataSetsListBox}" Visibility="Hidden"/>
 
-        <StackPanel Grid.Column="4" >
+        <!-- Full List of Data Sets -->
+        <StackPanel Grid.Column="5" >
             <TextBlock Text="All Data Sets" FontWeight="Bold" HorizontalAlignment="Center"/>
-
         </StackPanel>
 
-        <ListBox x:Name="AvailableDataSetsListBox" Grid.Column="4" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding FilteredDataSets}" Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
+        <ListBox x:Name="AvailableDataSetsListBox" Grid.Column="5" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding FilteredDataSets}" Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}" Margin="5"/>
@@ -106,12 +113,12 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <StackPanel Grid.Column="5" >
+        <!-- Full List of Projects (for filtering) -->
+        <StackPanel Grid.Column="6" >
             <TextBlock Text="Projects" FontWeight="Bold" HorizontalAlignment="Center"/>
-
         </StackPanel>
 
-        <ListBox x:Name="AvailableProjectsListBox" Grid.Column="5" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding AvailableProjects}" SelectedItem="{Binding SelectedProject}"
+        <ListBox x:Name="AvailableProjectsListBox" Grid.Column="6" Grid.Row="1" Grid.RowSpan="8" ItemsSource="{Binding AvailableProjects}" SelectedItem="{Binding SelectedProject}"
                  Margin="3,0,3,0" MinHeight="225" MaxHeight="225" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
