@@ -9,6 +9,7 @@ namespace RequestApp.Models
     {
         public int ID { get; set; }
         public string Status { get; set; }
+        public ObservableCollection<Requester> Requesters { get; set; } = [];
         public Requester Requester { get; set; }
         public DateTime? LatestSigning { get; set; }
         public DateTime? ExpiryDate { get; set; }
@@ -40,7 +41,9 @@ namespace RequestApp.Models
 
                 // clone each dataset
                 DataSets = new ObservableCollection<ITCDataSet>(
-                    DataSets.Select(ds => ds.Clone()))
+                    DataSets.Select(ds => ds.Clone())),
+
+                Requesters = new ObservableCollection<Requester>(Requesters.Select(r=>r.Clone()))
             };
         }
     }
