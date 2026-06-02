@@ -34,20 +34,22 @@ namespace RequestApp.ViewModels
             }
         }
 
-        public Requester Requester
+        [ObservableProperty]
+        private Requester selectedRequester;
+              
+        public ObservableCollection<Requester> Requesters
         {
-            get => _model.Requester;
+            get => _model.Requesters;
             set
             {
-                if (_model.Requester != value)
+                if (_model.Requesters != value)
                 {
-                    _model.Requester = value;
+                    _model.Requesters = value;
                     OnPropertyChanged();
-                    DropDownNames = false;
                 }
             }
         }
-
+        
         public DateTime? LatestSigning
         {
             get => _model.LatestSigning;
@@ -239,6 +241,24 @@ namespace RequestApp.ViewModels
             {
                 if (_model.DataFormat.Any(x => x != "SAS" && x != "SPSS" && x != "STATA"))
                     _model.DataFormat.RemoveAll(x => x != "SAS" && x != "SPSS" && x != "STATA");
+            }
+        }
+
+        [RelayCommand]
+        public void AddRequester(Requester requester)
+        {
+            if (!Requesters.Contains(requester))
+            {
+                Requesters.Add(requester);
+            }            
+        }
+
+        [RelayCommand]
+        public void RemoveRequester(Requester requester)
+        {
+            if (Requesters.Contains(requester))
+            {
+                Requesters.Remove(requester);
             }
         }
 
