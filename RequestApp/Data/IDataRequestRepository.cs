@@ -49,6 +49,8 @@ namespace RequestApp
             {
                 await CreateRequest(request, connection, transaction);
 
+                await SyncRequestRequesters(request, connection, transaction);
+
                 await SyncRequestDataSets(request, connection, transaction);
 
                 await SyncRequestFormats(request, connection, transaction);
@@ -125,6 +127,8 @@ namespace RequestApp
             {
                 await UpdateRequestRow(request, connection, transaction);
 
+                await SyncRequestRequesters(request, connection, transaction);
+
                 await SyncRequestDataSets(request, connection, transaction);
 
                 await SyncRequestFormats(request, connection, transaction);
@@ -167,6 +171,68 @@ namespace RequestApp
                 request.Notes,
                 Partial = request.PartialDataSets
             }, transaction);
+        }
+
+        private async Task SyncRequestRequesters(Request request, IDbConnection connection, IDbTransaction transaction)
+        {
+            // current rows in DB
+            var existingIds = (await connection.QueryAsync<int>(@"
+                    SELECT RequesterID
+                    FROM DataRequests.DataRequestRequesters
+                    WHERE RequestID = @RequestID",
+                    new
+                    {
+                        RequestID = request.ID
+                    },
+                    transaction))
+                    .ToList();
+
+            // current datasets in memory
+            var currentIds = request.Requesters
+                .Select(x => x.ID)
+                .ToList();
+
+            // determine differences
+            var addedIds = currentIds.Except(existingIds);
+
+            var removedIds = existingIds.Except(currentIds);
+
+            // insert newly added datasets
+            foreach (var requesterId in addedIds)
+            {
+                await connection.ExecuteAsync(@"
+                    INSERT INTO DataRequests.DataRequestRequesters
+                    (
+                        RequestID,
+                        RequesterID
+                    )
+                    VALUES
+                    (
+                        @RequestID,
+                        @RequesterID
+                    )",
+                    new
+                    {
+                        RequestID = request.ID,
+                        RequesterID = requesterId
+                    },
+                    transaction);
+            }
+
+            // remove deleted datasets
+            foreach (var requesterId in removedIds)
+            {
+                await connection.ExecuteAsync(@"
+                    DELETE FROM DataRequests.DataRequestRequesters
+                    WHERE RequestID = @RequestID
+                    AND RequesterID = @RequesterID",
+                    new
+                    {
+                        RequestID = request.ID,
+                        RequesterID = requesterId
+                    },
+                    transaction);
+            }
         }
 
         private async Task SyncRequestDataSets(Request request, IDbConnection connection, IDbTransaction transaction)
@@ -355,6 +421,10 @@ namespace RequestApp
             return result.ToList();
         }
 
+        /// <summary>
+        /// Get Requests with related Requester, DataSets, and DataFormats.
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<Request>> GetRequests()
         {
             using var connection = CreateConnection();
@@ -391,11 +461,48 @@ namespace RequestApp
                 },
                 splitOn: "RequesterID"
             );
-
+            await PopulateRequesters(result.ToList());
             await PopulateDataSets(result.ToList());
             await PopulateDataFormats(result.ToList());
 
             return result.ToList();
+        }
+
+        public async Task PopulateRequesters(List<Request> requests)
+        {
+            using var connection = CreateConnection();
+            var sql = @"SELECT RD.ID, RequestID, RequesterID, 
+                FirstName,
+                LastName,
+                Affiliation,
+                Email,
+                CountryTeam,
+                WebsiteMember,
+                DataUser,
+                StaffMember,
+                CoreMember FROM DataRequests.DataRequestRequesters RD INNER JOIN DataRequests.Requesters P ON RD.RequesterID = P.ID;";
+
+            var result = await connection.QueryAsync(sql);
+
+            var dictionaries = result
+            .Select(r => (IDictionary<string, object>)r)
+            .ToList();
+
+            foreach (var d in dictionaries)
+            {
+                var requestId = (int)d["RequestID"];
+                var request = requests.FirstOrDefault(r => r.ID == requestId);
+                if (request != null)
+                {
+                    request.Requesters.Add(new Requester
+                    {
+                        ID = (int)d["RequesterID"],
+                        FirstName = (string)d["FirstName"],
+                        LastName = (string)d["LastName"],
+                        //LatestSigning = (DateTime?)d["LatestSigning"],
+                    });
+                }
+            }
         }
 
         public async Task PopulateDataSets(List<Request> requests)
