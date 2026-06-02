@@ -28,11 +28,20 @@
             <StackPanel Orientation="Horizontal">
                 <!-- Requester info -->
                 <StackPanel Margin="0" Width="175">
-                    <TextBlock d:Text="Requester's Name" Text="{Binding Requester.ReversedFullName}" FontWeight="Bold" FontSize="14"/>
-                    <TextBlock d:Text="Affiliation" Text="{Binding Requester.Affiliation}" TextWrapping="Wrap"/>
+                    <ListBox ItemsSource="{Binding Requesters}" Background="Transparent" BorderThickness="0" >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,5">
+                                    <TextBlock d:Text="Requester's Name" Text="{Binding ReversedFullName}" FontWeight="Bold" FontSize="14"/>
+                                </StackPanel>
+
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <!--<TextBlock d:Text="Affiliation" Text="{Binding Requester.Affiliation}" TextWrapping="Wrap"/>
                     <TextBlock d:Text="Requester's Email" Text="{Binding Requester.Email}"/>
                     <TextBlock d:Text="Website?" Text="{Binding Requester.WebsiteMember, StringFormat='Website Member: {0}'}"/>
-                    <CheckBox Content="Data User?" IsChecked="{Binding Requester.DataUser}" />
+                    <CheckBox Content="Data User?" IsChecked="{Binding Requester.DataUser}" />-->
                 </StackPanel >
                 <!-- Request info -->
                 <StackPanel Margin="0" Width="185">
