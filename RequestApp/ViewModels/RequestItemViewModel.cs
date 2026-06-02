@@ -40,6 +40,8 @@ namespace RequestApp.ViewModels
 
         #region Model properties
         public string Status => _model.Status;
+
+        public List<Requester> Requesters => _model.Requesters.ToList();
         public Requester Requester => _model.Requester;
         public DateTime? LatestSigning => _model.LatestSigning;
         public DateTime? ExpiryDate => _model.ExpiryDate;
