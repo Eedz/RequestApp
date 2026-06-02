@@ -13,7 +13,7 @@ namespace RequestApp.Models
         public string LastName { get; set; }
         public string Affiliation { get; set; }
         public string Email { get; set; }
-
+        public DateTime? LatestSigning { get; set; }
         public string CountryTeamMember { get; set; }
         public string WebsiteMember { get; set; }
         public bool DataUser { get; set; }
@@ -33,7 +33,8 @@ namespace RequestApp.Models
                 Affiliation = Affiliation,
                 CountryTeamMember = CountryTeamMember,
                 WebsiteMember = WebsiteMember,
-                DataUser = DataUser
+                DataUser = DataUser,
+                LatestSigning = LatestSigning,
             };
         }
     }
