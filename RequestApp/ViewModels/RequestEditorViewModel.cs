@@ -129,7 +129,7 @@ namespace RequestApp.ViewModels
         }
         public ObservableCollection<ITCDataSet> DataSets => _model.DataSets;
         #endregion
-
+        public List<string> StatusList { get; } = ["Active", "Reminded", "Expired", "Completed"];
         public List<Requester> RequesterNames { get; set; } = [];
         public List<string> AvailableProjects { get; set; } = [];
         public ObservableCollection<ITCDataSet> AvailableDataSets { get; set; } = [];
@@ -145,9 +145,6 @@ namespace RequestApp.ViewModels
         [ObservableProperty]
         private bool dataFormatOther;
         public string DataFormatOtherDescription { get; set; }
-
-        [ObservableProperty]
-        private bool dropDownNames = false;
 
         [ObservableProperty]
         private string selectedProject;
@@ -278,12 +275,6 @@ namespace RequestApp.ViewModels
         private void RemoveDataSet(ITCDataSet dataset)
         {
             DataSets.Remove(dataset);
-        }
-
-        [RelayCommand]
-        public void ShowNames()
-        {
-            DropDownNames = !DropDownNames;
         }
 
         [RelayCommand]

@@ -26,15 +26,17 @@
             <RowDefinition Height="100"/>
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
-        
-        <!-- Requester(s) -->
-        <TextBlock Text="Add Requester(s)" Grid.Row="0" Grid.Column="0" FontWeight="Bold"/>
 
-        <DockPanel Grid.Column="0" Grid.Row="1" Margin="3,0,3,0" >
+        <ComboBox Grid.Row="0" ItemsSource="{Binding StatusList}" SelectedItem="{Binding Status}" Grid.Column="0" Margin="3" HorizontalAlignment="Left" Width="150"/>
+
+            <!-- Requester(s) -->
+        <TextBlock Text="Add Requester(s)" Grid.Row="1" Grid.Column="0" FontWeight="Bold"/>
+
+        <DockPanel Grid.Column="0" Grid.Row="2" Margin="3,0,3,0" >
             <ComboBox ItemsSource="{Binding RequesterNames}" DisplayMemberPath="ReversedFullName" SelectedItem="{Binding SelectedRequester, Mode=TwoWay}" Width="150" DockPanel.Dock="Left" />
             <Button Content="+" Command="{Binding AddRequesterCommand}" CommandParameter="{Binding SelectedRequester}" Width="35"/>
         </DockPanel>
-        <ListBox  x:Name="RequestersListBox" Grid.Column="0" Grid.Row="2" Grid.RowSpan="8" MinHeight="200" ItemsSource="{Binding Requesters}" Margin="3" VerticalAlignment="Top">
+        <ListBox  x:Name="RequestersListBox" Grid.Column="0" Grid.Row="3" Grid.RowSpan="8" MinHeight="200" ItemsSource="{Binding Requesters}" Margin="3" VerticalAlignment="Top">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="1" Height="32">
