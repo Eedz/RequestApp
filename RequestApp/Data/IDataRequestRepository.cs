@@ -72,7 +72,6 @@ namespace RequestApp
             INSERT INTO DataRequests.Requests
             (
                 Status,
-                RequesterID,
                 LatestSigning,
                 ExpiryDate,
                 AuthorizedBy,
@@ -83,7 +82,6 @@ namespace RequestApp
             VALUES
             (
                 @Status,
-                @RequesterID,
                 @LatestSigning,
                 @ExpiryDate,
                 @AuthorizedBy,
@@ -97,7 +95,6 @@ namespace RequestApp
             var requestId = await connection.ExecuteScalarAsync<long>(sql, new
             {
                 request.Status,
-                RequesterID = request.Requester.ID,
                 request.LatestSigning,
                 request.ExpiryDate,
                 request.AuthorizedBy,
@@ -150,7 +147,6 @@ namespace RequestApp
                 UPDATE DataRequests.Requests
                 SET
                     Status = @Status,
-                    RequesterID = @RequesterID,
                     LatestSigning = @LatestSigning,
                     ExpiryDate = @ExpiryDate,
                     AuthorizedBy = @AuthorizedBy,
@@ -163,7 +159,6 @@ namespace RequestApp
             {
                 request.ID,
                 request.Status,
-                RequesterID = request.Requester.ID,
                 request.LatestSigning,
                 request.ExpiryDate,
                 request.AuthorizedBy,
@@ -430,37 +425,18 @@ namespace RequestApp
             using var connection = CreateConnection();
             var sql = @"
             SELECT 
-                r.ID,
-                r.Status,
-                r.LatestSigning,
-                r.ExpiryDate,
-                r.AuthorizedBy,
-                r.InternalExternal,
-                r.Notes,
-                r.PartialDataSets,
-                req.ID as RequesterID,
-                req.ID,
-                req.FirstName,
-                req.LastName,
-                req.Affiliation,
-                req.Email,
-                req.CountryTeam,
-                req.WebsiteMember,
-                req.DataUser,
-                req.StaffMember,
-                req.CoreMember
-            FROM DataRequests.Requests r
-            INNER JOIN DataRequests.Requesters req ON r.RequesterID = req.ID
-            ORDER BY r.ID";
-            var result = await connection.QueryAsync<Request, Requester, Request>(
-                sql,
-                (request, requester) =>
-                {
-                    request.Requester = requester;
-                    return request;
-                },
-                splitOn: "RequesterID"
-            );
+                ID,
+                Status,
+                LatestSigning,
+                ExpiryDate,
+                AuthorizedBy,
+                InternalExternal,
+                Notes,
+                PartialDataSets
+            FROM DataRequests.Requests            
+            ORDER BY ID";
+            var result = await connection.QueryAsync<Request>(sql);
+
             await PopulateRequesters(result.ToList());
             await PopulateDataSets(result.ToList());
             await PopulateDataFormats(result.ToList());
