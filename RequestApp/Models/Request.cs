@@ -21,7 +21,7 @@ namespace RequestApp.Models
 
         public ObservableCollection<ITCDataSet> DataSets { get; set; } = [];
 
-
+        public string RequesterList => string.Join(", ", Requesters.Select(r => r.ReversedFullName));
         public Request Clone()
         {
             return new Request
