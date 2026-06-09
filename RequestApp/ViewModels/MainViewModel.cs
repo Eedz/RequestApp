@@ -141,14 +141,8 @@ namespace RequestApp.ViewModels
                 OnPropertyChanged(nameof(RequestCount));
             };
 
-            Names = new ObservableCollection<Requester>(
-                requests.Select(r => r.Requester)
-                            .Where(r => r != null)
-                            .GroupBy(r => r.ID)
-                            .Select(g => g.First())
-                            .OrderBy(o => o.LastName)
-                            .ToList()
-            );
+            var requesters = await _requestService.GetRequesters();
+            Names = new ObservableCollection<Requester>(requesters);
 
             Datasets = new ObservableCollection<ITCDataSet>(await _requestService.GetDataSets());
             
@@ -160,7 +154,7 @@ namespace RequestApp.ViewModels
             ExpiredRequests = new ObservableCollection<Request>(requests.Where(x => x.ExpiryDate != null && x.ExpiryDate.Value <= DateTime.Now)
                                         .OrderByDescending(x => x.ExpiryDate));
 
-            var requesters = await _requestService.GetRequesters();
+            
 
             CoreRequests = new ObservableCollection<Requester>(requesters.Where(x => x.CoreMember));
             StaffRequests = new ObservableCollection<Requester>(requesters.Where(x => x.StaffMember));
@@ -218,6 +212,7 @@ namespace RequestApp.ViewModels
                         _dialogService));
                 }
             }
+            OnPropertyChanged(nameof(Requests));
         }
 
         [RelayCommand]
@@ -232,7 +227,7 @@ namespace RequestApp.ViewModels
             if (SelectedName != null)
             {
                 DisplayedRequests.Clear();
-                DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests.Where(r => r.Requester?.ID == SelectedName.ID));
+                DisplayedRequests = new ObservableCollection<RequestItemViewModel>(Requests.Where(r => r.Requesters.Any(x=>x.ID == SelectedName.ID)));
             }else if (SelectedDataSet != null)
             {
                 DisplayedRequests.Clear();
@@ -265,7 +260,7 @@ namespace RequestApp.ViewModels
                     DisplayedRequests = new ObservableCollection<RequestItemViewModel>( DisplayedRequests.OrderByDescending(x => x.ExpiryDate));
                     break;
                 case "Requester":
-                    DisplayedRequests = new ObservableCollection<RequestItemViewModel>(DisplayedRequests.OrderBy(x => x.Requester.LastName));
+                    DisplayedRequests = new ObservableCollection<RequestItemViewModel>(DisplayedRequests.OrderBy(x => x.Requesters.First().LastName));
                     break;
                 case "Status":  
                     DisplayedRequests = new ObservableCollection<RequestItemViewModel>(DisplayedRequests.OrderBy(x => x.Status));
